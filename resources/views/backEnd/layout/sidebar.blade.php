@@ -45,8 +45,30 @@
                     </ul>
                 </div>
             </li>
+            <li class="menu-title">Product Module</li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarProduct" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAuthentication">
+                    <span class="nav-icon"><i class="ri-product-hunt-line"></i></span>
+                    <span class="nav-text"> Product Module </span>
+                </a>
+                <div class="collapse" id="sidebarProduct">
+                    <ul class="nav sub-navbar-nav">
+{{--                        @if (auth()->user()->can('role.permission'))--}}
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{route('admin.product.index')}}">Product</a>
+                            </li>
+{{--                        @endif--}}
+{{--                        @if (auth()->user()->can('reset.password'))--}}
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{route('admin.category.index')}}">Category</a>
+                            </li>
+{{--                        @endif--}}
 
-            <li class="menu-title">Custom</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="menu-title">User Module</li>
 
             @if (auth()->user()->can('role.permission') || auth()->user()->can('reset.password'))
             <li class="nav-item">
