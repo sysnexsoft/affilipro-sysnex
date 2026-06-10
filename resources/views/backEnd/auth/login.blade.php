@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Title Meta -->
+    <meta charset="utf-8" />
+    <title>{{ env('App_name')}} | </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A fully responsive premium admin dashboard template, Real Estate Management Admin Template" />
+    <meta name="author" content="Techzaa" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{{asset('/')}}Backend/assets/images/favicon.ico">
+
+    <!-- Vendor css (Require in all Page) -->
+    <link href="{{asset('/')}}Backend/assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Icons css (Require in all Page) -->
+    <link href="{{asset('/')}}Backend/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- App css (Require in all Page) -->
+    <link href="{{asset('/')}}Backend/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Theme Config js (Require in all Page) -->
+    <script src="{{asset('/')}}Backend/assets/js/config.min.js"></script>
+
+</head>
+
+<body class="authentication-bg">
+
+<div class="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-5">
+                <div class="card auth-card">
+                    <div class="card-body px-3 py-5">
+                        <div class="mx-auto mb-4 text-center auth-logo">
+                            <a href="" class="logo-dark">
+                                <img src="{{asset($web_setting->header_logo)}}" height="32" alt="logo dark">
+                            </a>
+
+                            <a href="" class="logo-light">
+                                <img src="{{asset($web_setting->header_logo)}}" height="28" alt="logo light">
+                            </a>
+                        </div>
+
+                        <h2 class="fw-bold text-uppercase text-center fs-18">Sign In</h2>
+                        <p class="text-muted text-center mt-1 mb-4">Enter your email address and password to access admin panel.</p>
+
+                        <div class="px-4">
+                            <form action="{{route('login.submit')}}" class="authentication-form" method="post">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label" for="example-email">Email <span class="text-danger">*</span></label>
+                                    <input type="email" required id="example-email" name="email" class="form-control bg-light bg-opacity-50 border-light py-2" placeholder="Enter your email">
+                                </div>
+                                <div class="mb-3">
+{{--                                    <a href="" class="float-end text-muted text-unline-dashed ms-1">Reset password</a>--}}
+                                    <label class="form-label" for="example-password">Password <span class="text-danger">*</span></label>
+                                    <input type="password" required id="example-password" name="password" class="form-control bg-light bg-opacity-50 border-light py-2" placeholder="Enter your password">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="remember" class="form-check-input" value="1" id="checkbox-signin">
+                                        <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-1 text-center d-grid">
+                                    <button class="btn btn-danger py-2 fw-medium" type="submit">Sign In</button>
+                                </div>
+                            </form>
+
+                            {{--<p class="mt-3 fw-semibold no-span">OR sign with</p>
+
+                            <div class="text-center">
+                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='bx bxl-google fs-20'></i></a>
+                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='ri-facebook-fill fs-20'></i></a>
+                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='bx bxl-github fs-20'></i></a>
+                            </div>--}}
+                        </div> <!-- end col -->
+                    </div> <!-- end card-body -->
+                </div> <!-- end card -->
+
+            </div> <!-- end col -->
+        </div> <!-- end row -->
+    </div>
+</div>
+
+<!-- Vendor Javascript (Require in all Page) -->
+<script src="{{asset('/')}}Backend/assets/js/jquery.min.js"></script>
+<script src="{{asset('/')}}Backend/assets/js/vendor.js"></script>
+
+<!-- App Javascript (Require in all Page) -->
+<script src="{{asset('/')}}Backend/assets/js/app.js"></script>
+<script src="{{asset('/')}}Backend/assets/js/sweetalert.js"></script>
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('logout-form').submit();
+            }
+        });
+    });
+</script>
+
+@if(session('success'))
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session("success") }}',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+@if(session('error'))
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ session("error") }}',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
+
+</body>
+
+
+<!-- Mirrored from techzaa.in/lahomes/admin/auth-signin.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 17 Nov 2025 16:45:09 GMT -->
+</html>
