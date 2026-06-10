@@ -234,5 +234,5 @@
 </body>
 
 
-<!-- Mirrored from techzaa.in/lahomes/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 17 Nov 2025 16:44:56 GMT -->
+<!-- Mirrored from techzaa.in/lahomes/admin/{{route('home')}} by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 17 Nov 2025 16:44:56 GMT -->
 </html>

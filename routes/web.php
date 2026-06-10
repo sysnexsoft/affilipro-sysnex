@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\WebSettingController;
+use App\Http\Controllers\HomeController;
 
 
 Route::get('/cc', function () {
@@ -17,7 +18,15 @@ Route::get('/cc', function () {
 });
 
 
-Route::get('/', function () {return view('welcome');});
+Route::get('/', [HomeController::class,'index'])->name('home');
+Route::get('/about-us', [HomeController::class,'aboutUs'])->name('about-us');
+Route::get('/contact-us', [HomeController::class,'contactUs'])->name('contact-us');
+Route::get('/product', [HomeController::class,'product'])->name('product');
+Route::get('/categories', [HomeController::class,'categories'])->name('categories');
+Route::get('/review', [HomeController::class,'review'])->name('review');
+Route::get('/compare', [HomeController::class,'compare'])->name('compare');
+Route::get('/blog', [HomeController::class,'blog'])->name('blog');
+
 Route::redirect('/admin', '/admin/login');
 Route::prefix('admin')->group(function () {
 
