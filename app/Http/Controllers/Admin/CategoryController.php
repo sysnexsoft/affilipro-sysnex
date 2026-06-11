@@ -10,33 +10,50 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::latest()->get();
-        return view('backend.category.index', compact('categories'));
+        $categories = Category::with('childrenRecursive')->whereNull('parent_id')->latest()->paginate(20);
+        $allCategories = Category::with('childrenRecursive')->latest()->paginate(20);
+        return view('backend.category.index', compact('categories','allCategories'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required|unique:categories,name'
+            'name' => 'required|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
         ]);
 
-        $image = null;
-        if($request->hasFile('image'))
-        {
-            $image = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/category'), $image);
+        $category = new Category();
+
+        $category->parent_id        = $request->parent_id;
+        $category->name             = $request->name;
+        $category->slug             = $this->generateUniqueSlug($request->name);
+        $category->description      = $request->description;
+        $category->icon             = $request->icon;
+        $category->position         = $request->position ?? 0;
+        $category->featured         = $request->featured ?? 0;
+
+        $category->meta_title       = $request->meta_title;
+        $category->meta_description = $request->meta_description;
+        $category->meta_keywords    = $request->meta_keywords;
+
+        $category->status           = $request->status;
+
+        if ($request->hasFile('image')) {
+
+            $image = $request->file('image');
+
+            $imageName = time().'_'.Str::random(10).'.'.$image->getClientOriginalExtension();
+
+            $image->move(public_path('uploads/category'), $imageName);
+
+            $category->image = $imageName;
         }
-        Category::create([
-            'name'=>$request->name,
-            'slug'=>Str::slug($request->name),
-            'description'=>$request->description,
-            'image'=>$image,
-            'meta_title'=>$request->meta_title,
-            'meta_description'=>$request->meta_description,
-            'meta_keywords'=>$request->meta_keywords,
-            'status'=>$request->status ?? 1
-        ]);
-        return back()->with('success','Category Added Successfully');
+
+        $category->save();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Category Added Successfully');
     }
 
     public function edit($id)
@@ -44,43 +61,90 @@ class CategoryController extends Controller
         return Category::findOrFail($id);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
+        $request->validate([
+            'name'  => 'required|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+        ]);
         $category = Category::findOrFail($id);
-        $image = $category->image;
-        if($request->hasFile('image'))
-        {
-            if($category->image && file_exists(public_path('uploads/category/'.$category->image))){
+        $category->parent_id        = $request->parent_id;
+        $category->name             = $request->name;
+        $category->slug             = $this->generateUniqueSlug($request->name, $id);
+        $category->description      = $request->description;
+        $category->icon             = $request->icon;
+        $category->position         = $request->position ?? 0;
+        $category->featured         = $request->featured ?? 0;
+        $category->meta_title       = $request->meta_title;
+        $category->meta_description = $request->meta_description;
+        $category->meta_keywords    = $request->meta_keywords;
+        $category->status           = $request->status;
+        // Image Update
+        if ($request->hasFile('image')) {
+
+            if (
+                $category->image &&
+                file_exists(public_path('uploads/category/'.$category->image))
+            ) {
                 unlink(public_path('uploads/category/'.$category->image));
             }
-            $image = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/category'), $image);
+
+            $image = $request->file('image');
+
+            $imageName = time().'_'.Str::random(10).'.'.$image->getClientOriginalExtension();
+
+            $image->move(public_path('uploads/category'), $imageName);
+
+            $category->image = $imageName;
         }
 
-        $category->update([
-            'name'=>$request->name,
-            'slug'=>Str::slug($request->name),
-            'description'=>$request->description,
-            'image'=>$image,
-            'meta_title'=>$request->meta_title,
-            'meta_description'=>$request->meta_description,
-            'meta_keywords'=>$request->meta_keywords,
-            'status'=>$request->status
-        ]);
+        $category->save();
 
-        return back()->with('success','Category Updated Successfully');
+        return redirect()
+            ->back()
+            ->with('success', 'Category Updated Successfully');
     }
 
     public function destroy(Request $request)
     {
         $category = Category::findOrFail($request->id);
 
-        if($category->image && file_exists(public_path('uploads/category/'.$category->image))){
-            unlink(public_path('uploads/category/'.$category->image));
+        if ($category->children()->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This category has subcategories.'
+            ]);
         }
+
+        if ($category->image &&
+            file_exists(public_path('uploads/category/' . $category->image))
+        ) {
+            unlink(public_path('uploads/category/' . $category->image));
+        }
+
         $category->delete();
+
         return response()->json([
-            'status'=>true
+            'success' => true,
+            'message' => 'Category Deleted Successfully'
         ]);
+    }
+    private function generateUniqueSlug($name, $id = null)
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (
+        Category::where('slug', $slug)
+            ->when($id, function ($q) use ($id) {
+                return $q->where('id', '!=', $id);
+            })
+            ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        return $slug;
     }
 }
