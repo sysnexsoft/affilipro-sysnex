@@ -52,10 +52,17 @@ Route::prefix('admin')->group(function () {
         Route::post('/product/update/{id}', [Admin\ProductController::class,'update'])->name('admin.product.update');
         Route::delete('/product/delete', [Admin\ProductController::class,'destroy'])->name('admin.product.delete');
 
+        // Category
         Route::get('/category', [Admin\CategoryController::class,'index'])->name('admin.category.index');
         Route::post('/category/store', [Admin\CategoryController::class,'store'])->name('admin.category.store');
         Route::post('/category/update/{id}', [Admin\CategoryController::class,'update'])->name('admin.category.update');
         Route::post('/category/delete', [Admin\CategoryController::class,'destroy'])->name('admin.category.delete');
+
+        // Brand
+        Route::get('/brand', [Admin\BrandController::class,'index'])->name('admin.brand.index');
+        Route::post('/brand/store', [Admin\BrandController::class,'store'])->name('admin.brand.store');
+        Route::post('/brand/update/{id}', [Admin\BrandController::class,'update'])->name('admin.brand.update');
+        Route::post('/brand/delete', [Admin\BrandController::class,'destroy'])->name('admin.brand.delete');
 
 
         Route::get('/role-permission', [RolePermissionController::class,'index'])->name('admin.role.permission');

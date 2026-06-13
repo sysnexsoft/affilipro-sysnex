@@ -51,13 +51,10 @@
 
                             <div class="col-md-3 mb-3">
                                 <label>Category *</label>
-                                <select name="category_id"
-                                        class="form-select"
-                                        required>
-
-                                    <option value="">
-                                        Select Category
-                                    </option>
+                                <select
+                                    name="category_ids[]"
+                                    class="form-select category-select"
+                                    multiple>
 
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}">
@@ -145,17 +142,12 @@
 
                             <div class="col-md-12 mb-3">
                                 <label>Description</label>
-
-                                <textarea name="description"
-                                          class="form-control summernote"></textarea>
+                                <textarea name="description" id="summernote" class="form-control summernote"></textarea>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label>Pros</label>
-
-                                <textarea name="pros"
-                                          rows="5"
-                                          class="form-control"></textarea>
+                                <textarea name="pros" rows="5" class="form-control"></textarea>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -363,7 +355,40 @@
 @endsection
 
 @push('js')
+    <script>
+        $('#addProduct').on('shown.bs.modal', function () {
 
+            if (!$('.summernote').next().hasClass('note-editor')) {
+
+                $('.summernote').summernote({
+                    height: 300,
+                    placeholder: 'Write product description...',
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture']],
+                        ['view', ['codeview']]
+                    ]
+                });
+
+            }
+
+        });
+        // Snow theme
+        var quill = new Quill('#snow-editor', {
+            theme: 'snow',
+            modules: {
+                'toolbar': [[{ 'font': [] }, { 'size': [] }], ['bold', 'italic', 'underline', 'strike'], [{ 'color': [] }, { 'background': [] }], [{ 'script': 'super' }, { 'script': 'sub' }], [{ 'header': [false, 1, 2, 3, 4, 5, 6] }, 'blockquote', 'code-block'], [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }], ['direction', { 'align': [] }], ['link', 'image', 'video'], ['clean']]
+            },
+        });
+
+        $('.category-select').select2({
+            dropdownParent: $('#addProduct'),
+            placeholder: 'Search Categories',
+            width: '100%'
+        });
+    </script>
     <script>
 
         $('.imageInput').on('change', function () {

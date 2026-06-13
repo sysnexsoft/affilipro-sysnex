@@ -63,6 +63,11 @@
                                 <a class="sub-nav-link" href="{{route('admin.category.index')}}">Category</a>
                             </li>
 {{--                        @endif--}}
+{{--                        @if (auth()->user()->can('reset.password'))--}}
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{route('admin.brand.index')}}">Brand</a>
+                            </li>
+{{--                        @endif--}}
 
                     </ul>
                 </div>

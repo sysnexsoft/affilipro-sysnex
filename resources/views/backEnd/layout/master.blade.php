@@ -21,9 +21,11 @@
 
     <!-- App css (Require in all Page) -->
     <link href="{{asset('/')}}Backend/assets/css/app.min.css" rel="stylesheet" type="text/css" />
-
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet"/>
     <!-- Theme Config js (Require in all Page) -->
     <script src="{{asset('/')}}Backend/assets/js/config.min.js"></script>
+
 </head>
 
 <body>
@@ -188,6 +190,9 @@
 <!-- Dashboard Js -->
 <script src="{{asset('/')}}Backend/assets/js/pages/dashboard-analytics.js"></script>
 <script src="{{asset('/')}}Backend/assets/js/sweetalert.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
 <script>
     document.getElementById('logout-btn').addEventListener('click', function (e) {
         e.preventDefault();
