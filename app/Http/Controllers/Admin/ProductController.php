@@ -14,7 +14,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category', 'brand'])->latest()->paginate(20);
+        $products = Product::with(['brand'])->latest()->paginate(20);
         $categories = Category::where('status',1)->get();
         $brands = Brand::where('status',1)->get();
         return view('backEnd.product.index', compact('products','categories','brands'));
@@ -23,12 +23,11 @@ class ProductController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
-            'category_id' => 'required',
             'affiliate_url' => 'required'
         ]);
 
         $product = new Product();
-        $product->category_id = $request->category_id;
+        $product->category_ids = $request->category_ids;
         $product->brand_id = $request->brand_id;
         $product->title = $request->title;
         $product->slug = Str::slug($request->title);
@@ -56,7 +55,7 @@ class ProductController extends Controller
             $product->featured_image = $imageName;
         }
         $product->save();
-        return redirect()->route('product.index')->with('success','Product Created Successfully');
+        return redirect()->route('admin.product.index')->with('success','Product Created Successfully');
     }
     public function edit($id)
     {

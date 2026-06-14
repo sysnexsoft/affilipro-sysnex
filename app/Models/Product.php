@@ -9,8 +9,7 @@ class Product extends Model
 {
     use HasFactory;
     protected $fillable = [
-
-        'category_id',
+        'category_ids',
         'brand_id',
         'title',
         'slug',
@@ -33,9 +32,17 @@ class Product extends Model
         'status'
     ];
 
-    public function category()
+    protected $casts = [
+        'category_ids' => 'array',
+    ];
+
+    /*public function category()
     {
         return $this->belongsTo(Category::class);
+    }*/
+    public function category()
+    {
+        return Category::whereIn('id', $this->category_ids ?? [])->get();
     }
 
     public function brand()
