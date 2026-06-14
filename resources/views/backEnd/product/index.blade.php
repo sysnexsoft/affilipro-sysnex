@@ -10,12 +10,7 @@
                 <h4 class="mb-0 fw-semibold">Products</h4>
 
                 <ol class="breadcrumb mb-0">
-                    <a href="javascript:void(0)"
-                       data-bs-toggle="modal"
-                       data-bs-target="#addProduct"
-                       class="btn btn-sm btn-primary">
-                        Add Product
-                    </a>
+                    <a href="{{route('admin.product.create')}}" class="btn btn-sm btn-primary">Add Product</a>
                 </ol>
             </div>
         </div>

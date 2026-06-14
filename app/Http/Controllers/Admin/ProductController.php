@@ -19,6 +19,12 @@ class ProductController extends Controller
         $brands = Brand::where('status',1)->get();
         return view('backEnd.product.index', compact('products','categories','brands'));
     }
+    public function create()
+    {
+        $categories = Category::where('status',1)->get();
+        $brands = Brand::where('status',1)->get();
+        return view('backEnd.product.create', compact('categories','brands'));
+    }
     public function store(Request $request)
     {
         $request->validate([
