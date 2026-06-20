@@ -46,7 +46,7 @@
                             <div class="">
                             @if($topPick->featured_image)
                                 <!-- 💡 object-contain ব্যবহার করায় ইমেজ কেটে যাবে না, বক্সের মাপে ফিট হয়ে থাকবে -->
-                                    <a href=""><img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain"></a>
+                                    <a href="{{route('product.details',$topPick->slug)}}"><img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain"></a>
                                 @else
                                     <i class="fa-solid fa-headphones-simple"></i>
                                 @endif
@@ -56,7 +56,7 @@
                             <p class="text-sm text-slate-500">{{ Str::limit($topPick->short_description, 60) }}</p>
                             <div class="flex items-center justify-between mt-4">
                                 <div><span class="text-2xl font-extrabold text-slate-900">${{ $topPick->sale_price }}</span></div>
-                                <a href="#" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                                <a href="{{route('product.details',$topPick->slug)}}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
                             </div>
                         </div>
                     @endif
@@ -114,7 +114,7 @@
                 @foreach($featuredProducts as $product)
 
                     <div class="card-premium p-4 flex flex-col justify-between">
-                        <a href="">
+                        <a href="{{route('product.details',$product->slug)}}">
                             <div>
                                 <div class="rounded-xl bg-slate-50 aspect-square grid place-items-center overflow-hidden mb-4">
                                     <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}" alt="{{ $product->title }}" class="w-full h-full object-cover">
@@ -123,8 +123,8 @@
                                 <p class="text-xs text-slate-500">{{ Str::limit($product->short_description, 60) }}</p>
                             </div>
                             <div class="flex items-center justify-between mt-4 border-t pt-3">
-                                <span class="text-lg font-extrabold text-slate-900">${{ $product->sale_price }}</span>
-                                <a href="#" class="btn-accent text-xs px-3 py-1.5 no-underline">Details</a>
+                                <span class="text-lg font-extrabold text-slate-900">{{ $product->sale_price }}</span>
+                                <a href="{{route('product.details',$product->slug)}}" class="btn-accent text-xs px-3 py-1.5 no-underline">Details</a>
                             </div>
                         </a>
                     </div>
@@ -188,7 +188,7 @@
                     @foreach($bestRatedProducts as $bProduct)
                         <tr>
                             <td class="p-4">
-                                <a href="">
+                                <a href="{{route('product.details',$bProduct->slug)}}">
                                     <div class="flex items-center gap-3">
                                         <img class="w-10 rounded-2" src="{{asset($bProduct->featured_image)}}" alt="">
                                         <span class="font-bold text-slate-900">{{ $bProduct->title }}</span>
@@ -201,7 +201,7 @@
                             <td class="p-4 font-bold">${{ $bProduct->sale_price }}</td>
                             <td class="p-4"><span class="badge bg-success text-xs text-white px-2 py-1 rounded">Top Choice</span></td>
                             <td class="p-4 text-end">
-                                <a href="#" class="btn-ghost btn-sm no-underline">View Details</a>
+                                <a href="{{route('product.details',$bProduct->slug)}}" class="btn-ghost btn-sm no-underline">View Details</a>
                             </td>
                         </tr>
                     @endforeach
