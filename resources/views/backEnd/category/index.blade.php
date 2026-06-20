@@ -46,7 +46,7 @@
 
                             <td>
                                 @if($item->image)
-                                    <img src="{{ asset('uploads/category/'.$item->image) }}"
+                                    <img src="{{ asset($item->image) }}"
                                          width="60">
                                 @endif
                             </td>
@@ -95,7 +95,7 @@
                                     data-meta_description="{{ $item->meta_description }}"
                                     data-meta_keywords="{{ $item->meta_keywords }}"
                                     data-status="{{ $item->status }}"
-                                    data-image="{{ asset('uploads/category/'.$item->image) }}"
+                                    data-image="{{ asset($item->image) }}"
                                     data-parent_id="{{ $item->parent_id }}"
                                     data-position="{{ $item->position }}"
                                     data-featured="{{ $item->featured }}"
@@ -119,6 +119,7 @@
 
                 </table>
             </div>
+            {{ $categories->links('backEnd.layout.paginate') }}
         </div>
     </div>
     <!-- Add Modal -->

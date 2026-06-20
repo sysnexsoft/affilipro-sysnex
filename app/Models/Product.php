@@ -13,23 +13,36 @@ class Product extends Model
         'brand_id',
         'title',
         'slug',
+        'sku',
         'short_description',
         'description',
         'pros',
         'cons',
         'featured_image',
+        'gallery',
+
         'regular_price',
         'sale_price',
+        'rating',
+        'review_count',
+        'view_count',
+        'click_count',
+
         'affiliate_url',
         'affiliate_network',
+        'commission_rate',
+
+        'allow_compare',
         'featured',
         'trending',
         'best_seller',
         'editors_choice',
+        'status',
+
         'meta_title',
         'meta_description',
         'meta_keywords',
-        'status'
+        'canonical_url',
     ];
 
     protected $casts = [
@@ -57,8 +70,11 @@ class Product extends Model
 
     public function reviews()
     {
-        return $this->hasMany(ProductReview::class)
-            ->where('approved',1);
+        return $this->hasMany(ProductReview::class)->where('approved', 1);
+    }
+    public function faqs()
+    {
+        return $this->hasMany(ProductFaq::class);
     }
 
     public function images()

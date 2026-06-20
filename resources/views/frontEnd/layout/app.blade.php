@@ -38,7 +38,15 @@
     <link rel="stylesheet" href="{{asset('/')}}Frontend/assets/css/style.css" />
     <!-- Schema markup -->
     <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebSite","name":"AffiliPro","url":"/","potentialAction":{"@type":"SearchAction","target":"/products.html?q={query}","query-input":"required name=query"}}
+      {
+      "@context":"https://schema.org",
+      "@type":"WebSite",
+      "name":"AffiliPro",
+      "url":"/",
+      "potentialAction":{
+                "@type":"SearchAction","target":"/products.html?q={query}",
+                "query-input":"required name=query"}
+      }
   </script>
 </head>
 <body>

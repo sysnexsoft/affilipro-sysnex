@@ -20,14 +20,9 @@
     <div class="row">
         <div class="col-xl-12">
             <div class="card">
-
                 <div class="card-body">
-
                     <div class="table-responsive">
-
-                        <table id="mytable"
-                               class="table table-bordered">
-
+                        <table id="mytable" class="table table-bordered">
                             <thead>
                             <tr>
                                 <th>#</th>
@@ -39,9 +34,7 @@
                                 <th width="120">Action</th>
                             </tr>
                             </thead>
-
                             <tbody>
-
                             @foreach($products as $product)
 
                                 <tr>
@@ -83,35 +76,10 @@
 
                                     </td>
 
-                                    <td>
-
+                                    <td class="d-flex gap-1">
+                                        <a href="{{route('admin.product.edit',$product->id)}}" class="btn btn-primary btn-sm">Edit</a>
                                         <button
-                                            class="btn btn-soft-primary btn-sm editBtn"
-                                            data-id="{{ $product->id }}"
-                                            data-title="{{ $product->title }}"
-                                            data-categories='@json($product->category_ids)'
-                                            data-brand="{{ $product->brand_id }}"
-                                            data-regular_price="{{ $product->regular_price }}"
-                                            data-sale_price="{{ $product->sale_price }}"
-                                            data-affiliate_url="{{ $product->affiliate_url }}"
-                                            data-affiliate_network="{{ $product->affiliate_network }}"
-                                            data-short_description="{{ $product->short_description }}"
-                                            data-description="{{ $product->description }}"
-                                            data-pros="{{ $product->pros }}"
-                                            data-cons="{{ $product->cons }}"
-                                            data-meta_title="{{ $product->meta_title }}"
-                                            data-meta_description="{{ $product->meta_description }}"
-                                            data-meta_keywords="{{ $product->meta_keywords }}"
-                                            data-featured="{{ $product->featured }}"
-                                            data-trending="{{ $product->trending }}"
-                                            data-best_seller="{{ $product->best_seller }}"
-                                            data-status="{{ $product->status }}"
-                                        >
-                                            Edit
-                                        </button>
-
-                                        <button
-                                            class="btn btn-soft-danger btn-sm deleteBtn"
+                                            class="btn btn-danger btn-sm deleteBtn"
                                             data-id="{{ $product->id }}">
                                             Delete
                                         </button>
@@ -121,15 +89,11 @@
                                 </tr>
 
                             @endforeach
-
                             </tbody>
-
                         </table>
-
                     </div>
-
+                    {{ $products->links('backEnd.layout.paginate') }}
                 </div>
-
             </div>
         </div>
     </div>

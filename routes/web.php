@@ -23,10 +23,11 @@ Route::get('/', [HomeController::class,'index'])->name('home');
 Route::get('/about-us', [HomeController::class,'aboutUs'])->name('about-us');
 Route::get('/contact-us', [HomeController::class,'contactUs'])->name('contact-us');
 Route::get('/product', [HomeController::class,'product'])->name('product');
+Route::get('/product/{slug}', [HomeController::class,'productDetails'])->name('product.details');
 Route::get('/categories', [HomeController::class,'categories'])->name('categories');
 Route::get('/review', [HomeController::class,'review'])->name('review');
 Route::get('/compare', [HomeController::class,'compare'])->name('compare');
-Route::get('/blog', [HomeController::class,'blog'])->name('blog');
+Route::get('/blogs', [HomeController::class,'blog'])->name('blogs');
 /*Route::get('/products',[ProductController::class,'index']);
 Route::get('/product/{slug}', [ProductController::class,'details']);
 Route::get('/category/{slug}', [ProductController::class,'categoryProducts']);
@@ -51,13 +52,21 @@ Route::prefix('admin')->group(function () {
         Route::post('/product/store', [Admin\ProductController::class,'store'])->name('admin.product.store');
         Route::get('/product/edit/{id}', [Admin\ProductController::class,'edit'])->name('admin.product.edit');
         Route::post('/product/update/{id}', [Admin\ProductController::class,'update'])->name('admin.product.update');
-        Route::delete('/product/delete', [Admin\ProductController::class,'destroy'])->name('admin.product.delete');
-
+        Route::post('/product/delete', [Admin\ProductController::class,'destroy'])->name('admin.product.delete');
+        Route::delete('admin/product/gallery-image/{id}', [Admin\ProductController::class, 'deleteGalleryImage'])->name('admin.product.deleteGalleryImage');
+        Route::resource('admin/products/compare-fields', Admin\ComparisonFieldController::class)->names('admin.compare-fields')->except(['create', 'show', 'edit']);
+        Route::get('admin/products/get-fields-by-categories', [App\Http\Controllers\Admin\ComparisonFieldController::class, 'getFieldsByCategories'])->name('admin.products.getFieldsByCategories');
         // Category
         Route::get('/category', [Admin\CategoryController::class,'index'])->name('admin.category.index');
         Route::post('/category/store', [Admin\CategoryController::class,'store'])->name('admin.category.store');
         Route::post('/category/update/{id}', [Admin\CategoryController::class,'update'])->name('admin.category.update');
         Route::post('/category/delete', [Admin\CategoryController::class,'destroy'])->name('admin.category.delete');
+
+        Route::prefix('admin')->name('admin.')->group(function () {
+            Route::resource('blogs-categories', Admin\BlogCategoryController::class);
+            Route::resource('blogs', Admin\BlogController::class);
+        });
+
 
         // Brand
         Route::get('/brand', [Admin\BrandController::class,'index'])->name('admin.brand.index');
@@ -65,6 +74,18 @@ Route::prefix('admin')->group(function () {
         Route::post('/brand/update/{id}', [Admin\BrandController::class,'update'])->name('admin.brand.update');
         Route::post('/brand/delete', [Admin\BrandController::class,'destroy'])->name('admin.brand.delete');
 
+        Route::prefix('admin/cms')->name('admin.cms.')->group(function () {
+            Route::get('reviews', [Admin\ProductReviewController::class, 'index'])->name('reviews.index');
+            Route::post('reviews', [Admin\ProductReviewController::class, 'store'])->name('reviews.store');
+            Route::put('reviews/{id}', [Admin\ProductReviewController::class, 'update'])->name('reviews.update');
+            Route::delete('reviews/{id}', [Admin\ProductReviewController::class, 'destroy'])->name('reviews.destroy');
+        });
+
+
+        Route::prefix('admin/logs')->name('admin.logs.')->group(function () {
+            Route::get('clicks', [Admin\AnalyticsController::class, 'trafficLogs'])->name('clicks');
+            Route::get('reports', [Admin\AnalyticsController::class, 'performanceReports'])->name('reports');
+        });
 
         Route::get('/role-permission', [RolePermissionController::class,'index'])->name('admin.role.permission');
         Route::get('/role-permission/create', [RolePermissionController::class,'create'])->name('admin.role.permission.create');

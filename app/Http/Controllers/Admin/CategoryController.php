@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Helpers\ImageHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -39,14 +40,7 @@ class CategoryController extends Controller
         $category->status           = $request->status;
 
         if ($request->hasFile('image')) {
-
-            $image = $request->file('image');
-
-            $imageName = time().'_'.Str::random(10).'.'.$image->getClientOriginalExtension();
-
-            $image->move(public_path('uploads/category'), $imageName);
-
-            $category->image = $imageName;
+            $category->image =  ImageHelper::upload($request->file('image'), 'uploads/category');
         }
 
         $category->save();
@@ -81,21 +75,13 @@ class CategoryController extends Controller
         $category->status           = $request->status;
         // Image Update
         if ($request->hasFile('image')) {
-
-            if (
-                $category->image &&
-                file_exists(public_path('uploads/category/'.$category->image))
-            ) {
-                unlink(public_path('uploads/category/'.$category->image));
-            }
-
-            $image = $request->file('image');
-
-            $imageName = time().'_'.Str::random(10).'.'.$image->getClientOriginalExtension();
-
-            $image->move(public_path('uploads/category'), $imageName);
-
-            $category->image = $imageName;
+            $category->image = ImageHelper::upload(
+                $request->file('image'),
+                'uploads/category',
+                null,
+                null,
+                $category->image
+            );
         }
 
         $category->save();

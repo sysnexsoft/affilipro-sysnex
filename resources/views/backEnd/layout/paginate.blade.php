@@ -1,15 +1,15 @@
 <div class="row align-items-center pagination-wrapper mt-4">
     <div class="col-md-6 mb-2 mb-md-0">
-        <div class="pagination-info">
+        <div class="pagination-info text-dark">
             Showing
             @if ($paginator->firstItem())
-                <span>{{ $paginator->firstItem() }}</span>
+                <span class="text-dark">{{ $paginator->firstItem() }}</span>
                 -
-                <span>{{ $paginator->lastItem() }}</span>
+                <span class="text-dark">{{ $paginator->lastItem() }}</span>
             @else
-                <span>{{ $paginator->count() }}</span>
+                <span class="text-dark">{{ $paginator->count() }}</span>
             @endif
-            of <span>{{ $paginator->total() }}</span> results
+            of <span class="text-dark">{{ $paginator->total() }}</span> results
         </div>
     </div>
 

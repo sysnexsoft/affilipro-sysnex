@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     exit.addEventListener('click', e => { if (e.target === exit) exit.classList.remove('show'); });
   }
 
-  /* ---- Product / blog live filter ---- */
+  /* ---- Product / blogs live filter ---- */
   const search = document.getElementById('liveSearch');
   if (search) {
     search.addEventListener('input', () => {

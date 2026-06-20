@@ -36,8 +36,8 @@
                 Reviews
             </a>
 
-            <a href="{{ route('blog') }}"
-               class="nav-link-premium {{ request()->routeIs('blog') ? 'text-primary' : '' }}">
+            <a href="{{ route('blogs') }}"
+               class="nav-link-premium {{ request()->routeIs('blogs') ? 'text-primary' : '' }}">
                 Blog
             </a>
 
@@ -80,7 +80,7 @@
 
         <a href="{{ route('review') }}" class="block py-2 font-semibold text-slate-700 hover:text-primary">Reviews</a>
 
-        <a href="{{ route('blog') }}" class="block py-2 font-semibold text-slate-700 hover:text-primary">Blog</a>
+        <a href="{{ route('blogs') }}" class="block py-2 font-semibold text-slate-700 hover:text-primary">Blog</a>
 
         <a href="{{ route('about-us') }}" class="block py-2 font-semibold text-slate-700 hover:text-primary">About</a>
 

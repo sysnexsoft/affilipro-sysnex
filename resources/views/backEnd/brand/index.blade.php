@@ -71,8 +71,8 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        {{ $brands->links('backEnd.layout.paginate') }}
                     </div>
+                    {{ $brands->links('backEnd.layout.paginate') }}
                 </div>
             </div>
         </div>
