@@ -27,6 +27,7 @@ return new class extends Migration
             // Pricing
             $table->decimal('regular_price',12,2)->nullable();
             $table->decimal('sale_price',12,2)->nullable();
+            $table->string('coupon')->nullable();
             $table->decimal('rating',3,2)->default(0);
             $table->integer('review_count')->default(0);
             $table->integer('view_count')->default(0);

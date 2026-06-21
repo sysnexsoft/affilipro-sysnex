@@ -37,26 +37,30 @@
                         <div class="card-premium p-6 float">
                             <div class="flex items-center justify-between mb-4">
                                 <span class="badge-pick"><i class="fa-solid fa-crown me-1"></i> #1 Top Pick</span>
-                                <span class="stars text-sm text-amber-400">
-                                    @for($i = 1; $i <= 5; $i++)
+                                <span class="stars text-sm text-amber-400">@for($i = 1; $i <= 5; $i++)
                                         <i class="fa-solid {{ $i <= round($topPick->reviews_avg_rating) ? 'fa-star' : 'fa-star-half-stroke' }}"></i>
                                     @endfor
                                 </span>
                             </div>
                             <div class="">
                             @if($topPick->featured_image)
-                                <!-- 💡 object-contain ব্যবহার করায় ইমেজ কেটে যাবে না, বক্সের মাপে ফিট হয়ে থাকবে -->
-                                    <a href="{{route('product.details',$topPick->slug)}}"><img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain"></a>
+                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
+                                    <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}">
+                                        <img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain">
+                                    </a>
                                 @else
                                     <i class="fa-solid fa-headphones-simple"></i>
                                 @endif
                             </div>
                             <h3 class="font-display font-bold text-lg mt-4">
-                                <a href="{{route('product.details',$topPick->slug)}}" class="">{{ $topPick->title }} </a></h3>
+                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
+                                <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="">{{ $topPick->title }} </a>
+                            </h3>
                             <p class="text-sm text-slate-500">{{ Str::limit($topPick->short_description, 60) }}</p>
                             <div class="flex items-center justify-between mt-4">
-                                <div><span class="text-2xl font-extrabold text-slate-900">${{ $topPick->sale_price }}</span></div>
-                                <a href="{{route('product.details',$topPick->slug)}}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                                <div><span class="text-2xl font-extrabold text-slate-900">{{ format_price($topPick->sale_price) }}</span></div>
+                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
+                                <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
                             </div>
                         </div>
                     @endif
@@ -112,22 +116,7 @@
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
                 @foreach($featuredProducts as $product)
-
-                    <div class="card-premium p-4 flex flex-col justify-between">
-                        <a href="{{route('product.details',$product->slug)}}">
-                            <div>
-                                <div class="rounded-xl bg-slate-50 aspect-square grid place-items-center overflow-hidden mb-4">
-                                    <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}" alt="{{ $product->title }}" class="w-full h-full object-cover">
-                                </div>
-                                <h4 class="font-bold text-base text-slate-900 mb-1">{{ $product->title }}</h4>
-                                <p class="text-xs text-slate-500">{{ Str::limit($product->short_description, 60) }}</p>
-                            </div>
-                            <div class="flex items-center justify-between mt-4 border-t pt-3">
-                                <span class="text-lg font-extrabold text-slate-900">{{ $product->sale_price }}</span>
-                                <a href="{{route('product.details',$product->slug)}}" class="btn-accent text-xs px-3 py-1.5 no-underline">Details</a>
-                            </div>
-                        </a>
-                    </div>
+                    @include('frontEnd.component.productcard',['product' => $product])
                 @endforeach
             </div>
         </div>

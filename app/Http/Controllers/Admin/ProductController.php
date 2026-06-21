@@ -49,6 +49,7 @@ class ProductController extends Controller
 
         $product->regular_price = $request->regular_price;
         $product->sale_price = $request->sale_price;
+        $product->coupon = $request->coupon;
 
         $product->affiliate_url = $request->affiliate_url;
         $product->affiliate_network = $request->affiliate_network;
@@ -139,6 +140,7 @@ class ProductController extends Controller
 
         $product->regular_price = $request->regular_price;
         $product->sale_price = $request->sale_price;
+        $product->coupon = $request->coupon;
 
         $product->affiliate_url = $request->affiliate_url;
         $product->affiliate_network = $request->affiliate_network;

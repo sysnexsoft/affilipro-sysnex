@@ -28,82 +28,82 @@
             <li class="menu-title">Menu</li>
 
             <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarDashboards" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
+                <a class="nav-link menu-arrow {{ request()->is(['admin/dashboard', 'admin/finance']) ? 'active' : '' }}" href="#sidebarDashboards" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
                     <span class="nav-icon"><i class="ri-dashboard-2-line"></i></span>
                     <span class="nav-text"> Dashboard</span>
                 </a>
-                <div class="collapse" id="sidebarDashboards">
+                <div class="collapse {{ request()->is(['admin/dashboard', 'admin/finance']) ? 'show' : '' }}" id="sidebarDashboards">
                     <ul class="nav sub-navbar-nav">
                         @if (auth()->user()->can('dashboard'))
                             <li class="sub-nav-item">
-                                <a class="sub-nav-link" href="{{route('admin.dashboard')}}">Dashboard</a>
+                                <a class="sub-nav-link {{ request()->is('admin/dashboard*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.dashboard')}}">Dashboard</a>
                             </li>
                         @endif
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="#">Finance</a>
+                            <a class="sub-nav-link {{ request()->is('admin/finance*') ? 'active text-dark bg-info-subtle' : ''}}" href="#">Finance</a>
                         </li>
                     </ul>
                 </div>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarProduct" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProduct">
+                <a class="nav-link menu-arrow {{ request()->is(['admin/product/*', 'admin/category*', 'admin/brand*','admin/products/compare-fields']) ? 'active' : '' }}" href="#sidebarProduct" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProduct">
                     <span class="nav-icon"><i class="ri-product-hunt-line"></i></span>
                     <span class="nav-text"> Product Catalog </span>
                 </a>
-                <div class="collapse" id="sidebarProduct">
+                <div class="collapse {{ request()->is(['admin/product/*', 'admin/category*', 'admin/brand*','admin/products/compare-fields']) ? 'show' : '' }}" id="sidebarProduct">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.category.index')}}">Categories</a>
+                            <a class="sub-nav-link {{ request()->is('admin/category*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.category.index')}}">Categories</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.brand.index')}}">Brands</a>
+                            <a class="sub-nav-link {{ request()->is('admin/brand*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.brand.index')}}">Brands</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.product.index')}}">All Products</a>
+                            <a class="sub-nav-link {{ request()->is(['admin/product','admin/product/create','admin/product/edit/*']) ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.product.index')}}">All Products</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.compare-fields.index')}}">Comparison Fields</a>
+                            <a class="sub-nav-link {{ request()->is('admin/products/compare-fields*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.compare-fields.index')}}">Comparison Fields</a>
                         </li>
                     </ul>
                 </div>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarCMS" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCMS">
+                <a class="nav-link menu-arrow {{ request()->is(['admin/cms/*', 'admin/blogs-categories*', 'admin/blogs*']) ? 'active' : '' }}" href="#sidebarCMS" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCMS">
                     <span class="nav-icon"><i class="ri-bubble-chart-line"></i></span>
                     <span class="nav-text"> Content Management </span>
                 </a>
-                <div class="collapse" id="sidebarCMS">
+                <div class="collapse {{ request()->is(['admin/cms/*', 'admin/blogs-categories*', 'admin/blogs*']) ? 'show' : '' }}" id="sidebarCMS">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.cms.reviews.index')}}">Product Reviews</a>
+                            <a class="sub-nav-link {{ request()->is('admin/cms/*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.cms.reviews.index')}}">Product Reviews</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.blogs-categories.index')}}">Blog Category</a>
+                            <a class="sub-nav-link {{ request()->is('admin/blogs-categories*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.blogs-categories.index')}}">Blog Category</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.blogs.index')}}">Blog Posts</a>
+                            <a class="sub-nav-link {{ request()->is(['admin/blogs','admin/blogs/create','admin/blogs/*']) ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.blogs.index')}}">Blog Posts</a>
                         </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.product.index')}}">Review & Blog Comments</a>
-                        </li>
+                        {{--<li class="sub-nav-item">
+                            <a class="sub-nav-link --}}{{--{{ request()->is('admin/brand*') ? 'active text-dark bg-info-subtle' : ''}}--}}{{--" href="">Review & Blog Comments</a>
+                        </li>--}}
                     </ul>
                 </div>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarAnalytics" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAnalytics">
+                <a class="nav-link menu-arrow  {{ request()->is(['admin/logs/clicks', 'admin/logs/reports*']) ? 'active' : '' }}" href="#sidebarAnalytics" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAnalytics">
                     <span class="nav-icon"><i class="ri-pie-chart-line"></i></span>
                     <span class="nav-text"> Click Analytics Logs </span>
                 </a>
-                <div class="collapse" id="sidebarAnalytics">
+                <div class="collapse {{ request()->is(['admin/logs/clicks', 'admin/logs/reports']) ? 'show' : '' }}" id="sidebarAnalytics">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.logs.clicks')}}">Real-time Traffic Logs</a>
+                            <a class="sub-nav-link {{ request()->is('admin/logs/clicks') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.logs.clicks')}}">Real-time Traffic Logs</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('admin.logs.reports')}}">Performance Reports</a>
+                            <a class="sub-nav-link {{ request()->is('admin/logs/reports') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.logs.reports')}}">Performance Reports</a>
                         </li>
                     </ul>
                 </div>
@@ -157,6 +157,11 @@
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="{{route('admin.brand.index')}}">Email Configuration</a>
                         </li>
+                        @can('currency.list')
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.currency.index')}}">Currency</a>
+                        </li>
+                        @endcan
                     </ul>
                 </div>
             </li>

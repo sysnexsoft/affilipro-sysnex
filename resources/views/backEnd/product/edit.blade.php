@@ -92,13 +92,17 @@
 
                                 <div class="tab-pane fade" id="affiliate">
                                     <div class="row g-3">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-bold">Regular Price</label>
                                             <input type="number" step="0.01" name="regular_price" class="form-control" value="{{ old('regular_price', $product->regular_price) }}">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-bold">Sale Price</label>
                                             <input type="number" step="0.01" name="sale_price" class="form-control" value="{{ old('sale_price', $product->sale_price) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">Coupon</label>
+                                            <input type="text" name="coupon" class="form-control" value="{{ old('coupon', $product->coupon) }}" placeholder="coupon code">
                                         </div>
                                         <div class="col-md-12">
                                             <label class="form-label fw-bold text-primary">Affiliate URL *</label>

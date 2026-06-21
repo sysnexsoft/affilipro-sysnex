@@ -23,6 +23,7 @@ class Product extends Model
 
         'regular_price',
         'sale_price',
+        'coupon',
         'rating',
         'review_count',
         'view_count',

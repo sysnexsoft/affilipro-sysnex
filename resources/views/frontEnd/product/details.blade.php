@@ -36,7 +36,9 @@
 
             <div data-aos="fade-left">
                 <div class="flex items-center gap-2 mb-3">
+                    @if(request()->has('top_pick'))
                     <span class="badge-pick"><i class="fa-solid fa-crown me-1"></i>#1 Top Pick</span>
+                    @endif
                     <span class="badge-editor"><i class="fa-solid fa-award me-1"></i>Editor's Choice</span>
                 </div>
                 <h1 class="font-display text-3xl md:text-4xl font-extrabold text-slate-900">{{ $product->title ?? 'AuraSound Pro 3 Wireless Earbuds' }}</h1>
@@ -69,13 +71,13 @@
 
                 <div class="card-premium p-5 mt-6">
                     <div class="flex items-end gap-3">
-                        <span class="text-4xl font-extrabold text-slate-900">${{ $product->sale_price ?? '149' }}</span>
+                        <span class="text-4xl font-extrabold text-slate-900">{{ format_price($product->sale_price)  ?? '' }}</span>
                         @if(isset($product->regular_price) && $product->regular_price > ($product->sale_price ?? 0))
                             @php
                                 // সূত্র: ((Regular Price - Sale Price) / Regular Price) * 100
                                 $discount = (($product->regular_price - $product->sale_price) / $product->regular_price) * 100;
                             @endphp
-                            <span class="text-slate-400 line-through text-xl">${{ $product->regular_price }}</span>
+                            <span class="text-slate-400 line-through text-xl">{{ format_price($product->regular_price) }}</span>
                             <span class="badge-deal mb-2">Save {{ round($discount) }}%</span>
                         @elseif(!isset($product))
                         <!-- 💡 ব্যাকআপ স্ট্যাটিক ডেটা (যদি $product অবজেক্টই না থাকে) -->
@@ -101,17 +103,9 @@
             <div class="lg:col-span-2 space-y-8">
 
                 <div class="card-premium p-6" data-aos="fade-up">
-                    <h2 class="font-display text-2xl font-extrabold mb-4">Key Features</h2>
-                    <div class="grid sm:grid-cols-1 gap-4">
+                    <h2 class="font-display text-2xl font-extrabold mb-4">Description</h2>
+                    <div class="grid sm:grid-cols-1 gap-4" align="justify">
                         {!! $product->description !!}
-                        {{--<div class="flex gap-3 items-start">
-                            <span class="text-primary mt-1"><i class="fa-solid fa-circle-check"></i></span>
-                            <div><h5 class="font-bold text-slate-900 m-0">Hybrid Active Noise Cancellation</h5><p class="text-sm text-slate-500 mt-1">Blocks up to 42dB of unwanted ambient noise.</p></div>
-                        </div>
-                        <div class="flex gap-3 items-start">
-                            <span class="text-primary mt-1"><i class="fa-solid fa-circle-check"></i></span>
-                            <div><h5 class="font-bold text-slate-900 m-0">Hi-Res Audio Certified</h5><p class="text-sm text-slate-500 mt-1">Custom 11mm dynamic drivers with LDAC support.</p></div>
-                        </div>--}}
                     </div>
                 </div>
 
@@ -196,10 +190,10 @@
                 <div class="sticky space-y-6" style="top:90px">
                     <div class="card-premium p-6" data-aos="fade-left">
                         <h3 class="font-bold mb-3">Best Deal Today</h3>
-                        <div class="text-3xl font-extrabold text-slate-900">${{ $product->sale_price ?? '' }} <span class="text-slate-400 line-through text-lg">${{ $product->regular_price ?? '' }}</span></div>
+                        <div class="text-3xl font-extrabold text-slate-900">{{ format_price($product->sale_price) ?? '' }} <span class="text-slate-400 line-through text-lg">{{ format_price($product->regular_price) ?? '' }}</span></div>
                         <div class="mt-2 text-sm text-slate-500" data-countdown>Deal ends in <strong><span data-h>00</span>h <span data-m>00</span>m <span data-s>00</span>s</strong></div>
                         <a href="{{ $product->affiliate_url ?? '#' }}" target="_blank" class="btn-grad w-full text-center mt-4 no-underline block">Get This Deal</a>
-                        <div class="mt-3 glass rounded-xl p-3 text-center text-sm">Coupon: <strong>{{ $product->coupon_code ?? 'EXAMPLE9' }}</strong></div>
+                        <div class="mt-3 glass rounded-xl p-3 text-center text-sm">Coupon: <strong>{{ $product->coupon ?? 'EXAMPLE9' }}</strong></div>
                     </div>
                     <div class="card-premium p-6" data-aos="fade-left">
                         <h3 class="font-bold mb-2">Editor's Verdict</h3>
@@ -214,28 +208,10 @@
     <section class="py-12 bg-white">
         <div class="container-x">
             <h2 class="font-display text-3xl font-extrabold mb-8" data-aos="fade-up">Related Products</h2>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" id="relatedGrid">
-                @forelse($relatedProducts ?? [] as $relProduct)
-                    <div class="card-premium p-4 flex flex-col justify-between">
-                        <div>
-                            <div class="rounded-xl bg-slate-50 aspect-square grid place-items-center overflow-hidden mb-4 p-2">
-                                <img src="{{ asset($relProduct->featured_image ?? 'frontEnd/assets/default.png') }}" alt="{{ $relProduct->title }}" class="w-full h-full object-contain">
-                            </div>
-                            <h4 class="font-bold text-base text-slate-900 mb-1">{{ Str::limit($relProduct->title, 40) }}</h4>
-                            <p class="text-xs text-slate-500">{{ Str::limit($relProduct->short_description ?? '', 60) }}</p>
-                        </div>
-                        <div class="flex items-center justify-between mt-4 border-t pt-3">
-                            <span class="text-lg font-extrabold text-slate-900">${{ $relProduct->price }}</span>
-                            <a href="{{ route('product.details', $relProduct->id ?? 1) }}" class="btn-accent text-xs px-3 py-1.5 no-underline">Details</a>
-                        </div>
-                    </div>
-                @empty
-                    <div class="card-premium p-4">
-                        <div class="rounded-xl bg-slate-50 aspect-square grid place-items-center mb-4"><i class="fa-solid fa-headphones-simple text-4xl text-slate-300"></i></div>
-                        <h4 class="font-bold text-base text-slate-900">Similar Premium Earbud</h4>
-                        <div class="flex items-center justify-between mt-4 border-t pt-3"><span class="text-lg font-extrabold">$129</span><span class="badge bg-secondary text-white text-xs px-2 py-1">View</span></div>
-                    </div>
-                @endforelse
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach($relatedProducts ?? [] as $relProduct)
+                    @include('frontEnd.component.productcard', ['product' => $relProduct])
+                @endforeach
             </div>
         </div>
     </section>

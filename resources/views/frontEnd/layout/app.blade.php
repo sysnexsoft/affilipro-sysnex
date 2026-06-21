@@ -48,6 +48,53 @@
                 "query-input":"required name=query"}
       }
   </script>
+    <style>
+        /* গুগলের ওপরের ট্রান্সলেট বার বা ব্যানার চিরতরে হাইড করার জন্য */
+        body {
+            top: 0 !important;
+        }
+        .goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, .goog-te-gadget-icon {
+            display: none !important;
+        }
+        .goog-tooltip, .goog-tooltip:hover {
+            display: none !important;
+        }
+        .goog-text-highlight {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        /* ১. গুগলের মেইন ব্যানার আইফ্রেম পুরোপুরি ব্লক করা */
+        .goog-te-banner-frame,
+        .goog-te-banner-frame.skiptranslate,
+        #goog-gt-tt,
+        .goog-te-balloon-frame {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* ২. বডি এলিমেন্টকে গুগল জোর করে নিচে নামাতে না পারে তার ব্যবস্থা */
+        body {
+            top: 0 !important;
+            position: static !important;
+        }
+
+        /* ৩. কিছু কিছু ব্রাউজারে গুগল <html> ট্যাগে ক্লাস বসায়, সেটা ফিক্স করা */
+        html {
+            background-color: transparent !important;
+        }
+
+        .skiptranslate {
+            display: none !important;
+        }
+
+        /* ৪. টেক্সট হাইলাইট বা মাউস হোভার পপআপ বন্ধ করা */
+        .goog-text-highlight {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            box-sizing: border-box !important;
+        }
+    </style>
 </head>
 <body>
 <div class="read-progress"></div>
@@ -94,6 +141,47 @@
 
 @stack('js')
 @yield('js')
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'en,bn,es',
+            // এটি গুগলকে নির্দেশ দেবে কোনো ডিফল্ট ব্যানার বা পপআপ না তৈরি করতে
+            floatPosition: google.translate.TranslateElement.FloatPosition.TOP_LEFT
+        }, 'google_translate_element');
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+        // ড্রপডাউন আইটেমে ক্লিক করার লজিক
+        const langSelectors = document.querySelectorAll('.lang-selector');
+        langSelectors.forEach(selector => {
+            selector.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const langCode = this.getAttribute('data-lang');
+                const langText = this.innerText;
+
+                // গুগলের ভেতরের ডিফল্ট ড্রপডাউন সিলেক্টর খুঁজে বের করা
+                const googleSelect = document.querySelector('.goog-te-combo');
+
+                if (googleSelect) {
+                    googleSelect.value = langCode;
+                    // গুগলকে ট্রিগার করার জন্য চেঞ্জ ইভেন্ট ফায়ার করা
+                    googleSelect.dispatchEvent(new Event('change'));
+
+                    // মেইন লেবেল পরিবর্তন করা
+                    document.getElementById('current-lang-label').innerText = langText;
+
+                    // অ্যাক্টিভ ক্লাস চেঞ্জ করা
+                    langSelectors.forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                } else {
+                    console.error("Google Translate script not fully loaded yet.");
+                }
+            });
+        });
+    });
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
 

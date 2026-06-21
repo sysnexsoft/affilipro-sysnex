@@ -10,7 +10,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle">
+                    <table class="table table-bordered table-striped align-middle fs-5">
                         <thead class="table-light">
                         <tr>
                             <th>Time</th>
@@ -25,7 +25,7 @@
                         @foreach($logs as $log)
                         <tr>
                             <td><small class="text-muted">{{ $log->created_at->diffForHumans() }}</small></td>
-                            <td><code>{{ Str::limit($log->url, 40) }}</code></td>
+                            <td><code><a target="_blank" class="text-danger" href="{{$log->url}}">{{ Str::limit($log->url, 40) }}</a></code></td>
                             <td><span class="badge bg-secondary">{{ $log->ip_address }}</span></td>
                             <td>🌍 {{ $log->country }}</td>
                             <td>
