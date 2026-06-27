@@ -1,35 +1,83 @@
 @extends('frontEnd.layout.app')
-@section('title','')
+
+@section('title', 'Blog - Guides, Reviews & Deals')
+
 @section('body')
     <section class="bg-hero pt-12 pb-12">
         <div class="container-x">
-            <nav class="crumb text-sm mb-4" data-aos="fade-up"><a href="{{route('home')}}">Home</a> <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i> <span class="text-slate-700 font-semibold">Blog</span></nav>
+            <nav class="crumb text-sm mb-4" data-aos="fade-up">
+                <a href="{{ route('home') }}">Home</a>
+                <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i>
+                <span class="text-slate-700 font-semibold">Blog</span>
+            </nav>
             <h1 class="font-display text-4xl md:text-5xl font-extrabold" data-aos="fade-up">Guides, Reviews & Deals</h1>
+
+            <!-- সার্চ বার -->
             <div class="mt-6 glass rounded-2xl p-2 flex items-center shadow-soft max-w-xl" data-aos="fade-up">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 px-3"></i>
                 <input id="liveSearch" type="text" placeholder="Search articles..." class="flex-1 bg-transparent border-0 outline-none py-2" />
             </div>
-            <div class="flex flex-wrap gap-2 mt-5" id="blogFilters"></div>
+
+            <!-- ক্যাটাগরি ফিল্টার বাটনসমূহ -->
+            <div class="flex flex-wrap gap-2 mt-5" id="blogFilters">
+                <button data-filter="all" class="text-sm btn-grad no-underline mb-1 px-3" style="height: 30px">All</button>
+                @foreach($categories as $cat)
+                    <button data-filter="{{ Str::slug($cat->name) }}" class="text-sm btn-ghost no-underline mb-1 px-3" style="height: 30px">{{ $cat->name }}</button>
+                @endforeach
+            </div>
         </div>
     </section>
+
+    <!-- ব্লগ গ্রিড -->
     <section class="py-12">
-        <div class="container-x grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="blogGrid"></div>
+        <div class="container-x grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($blogs as $blog)
+                @include('frontEnd.component.blogCard',['blog' => $blog])
+            @endforeach
+        </div>
     </section>
 @endsection
 
 @push('js')
     <script>
-        (function(){
-            const D=window.AFFILI;
-            document.getElementById('blogGrid').innerHTML=D.blog.map(b=>`
-      <article class="card-premium" data-aos="fade-up" data-search-item="${b.title} ${b.cat}" data-cat="${b.cat}">
-        <a href="blog-details.html" class="block aspect-video bg-gradient-to-br from-violet-50 to-cyan-50 grid place-items-center text-5xl text-secondary no-underline"><i class="fa-solid fa-${b.icon}"></i></a>
-        <div class="p-5"><div class="flex items-center gap-2 text-xs"><span class="eyebrow">${b.cat}</span><span class="text-slate-400">${b.read} read</span></div>
-        <h3 class="font-display font-bold text-lg mt-3"><a href="blog-details.html" class="text-slate-900 no-underline hover:text-primary">${b.title}</a></h3>
-        <div class="flex items-center justify-between mt-4 text-sm text-slate-400"><span><i class="fa-regular fa-user me-1"></i>${b.author}</span><span>${b.date}</span></div></div>
-      </article>`).join('');
-            const cats=['all',...new Set(D.blog.map(b=>b.cat))];
-            document.getElementById('blogFilters').innerHTML=cats.map((c,i)=>`<button data-filter="${c}" class="text-sm ${i===0?'btn-grad':'btn-ghost'} no-underline">${c==='all'?'All':c}</button>`).join('');
-        })();
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById('liveSearch');
+            const filterButtons = document.querySelectorAll('#blogFilters button');
+            const articles = document.querySelectorAll('#blogGrid article');
+
+            // লাইভ সার্চ এবং ক্যাটাগরি ফিল্টারিং এক সাথে কাজ করার জন্য ফাংশন
+            function filterBlogs() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const activeFilter = document.querySelector('#blogFilters .btn-grad').getAttribute('data-filter');
+
+                articles.forEach(article => {
+                    const searchText = article.getAttribute('data-search-item');
+                    const articleCat = article.getAttribute('data-cat');
+
+                    const matchesSearch = searchText.includes(searchTerm);
+                    const matchesCategory = (activeFilter === 'all' || articleCat === activeFilter);
+
+                    if (matchesSearch && matchesCategory) {
+                        article.style.display = 'block';
+                    } else {
+                        article.style.display = 'none';
+                    }
+                });
+            }
+
+            // সার্চ ইনপুট লিসেনার
+            searchInput.addEventListener('input', filterBlogs);
+
+            // ফিল্টার বাটন লিসেনার
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // অ্যাক্টিভ ক্লাস পরিবর্তন
+                    filterButtons.forEach(btn => btn.classList.replace('btn-grad', 'btn-ghost'));
+                    this.classList.replace('btn-ghost', 'btn-grad');
+
+                    filterBlogs();
+                });
+            });
+        });
     </script>
 @endpush

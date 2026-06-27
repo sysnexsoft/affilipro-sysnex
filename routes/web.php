@@ -27,7 +27,8 @@ Route::get('/product/{slug}', [HomeController::class,'productDetails'])->name('p
 Route::get('/categories', [HomeController::class,'categories'])->name('categories');
 Route::get('/review', [HomeController::class,'review'])->name('review');
 Route::get('/compare', [HomeController::class,'compare'])->name('compare');
-Route::get('/blogs', [HomeController::class,'blog'])->name('blogs');
+Route::get('/blog', [HomeController::class,'blog'])->name('blogs');
+Route::get('/blog/{slug}', [HomeController::class,'blogDetails'])->name('blog.details');
 Route::get('/currency-switch/{code}', [Admin\CurrencyController::class,'switchCurrency'])->name('currency.switch');
 /*Route::get('/products',[ProductController::class,'index']);
 Route::get('/product/{slug}', [ProductController::class,'details']);

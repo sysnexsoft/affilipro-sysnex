@@ -82,7 +82,7 @@
             <a href="{{ route('product') }}" class="text-slate-600 hover:text-primary">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </a>
-            <a href="{{ route('compare') }}" class="btn-grad text-sm no-underline">
+            <a href="{{ route('compare') }}" class="btn-grad text-sm no-underline" style="padding: 0.7rem 1.6rem;">
                 <i class="fa-solid fa-scale-balanced me-1"></i> Compare Top Picks
             </a>
         </div>

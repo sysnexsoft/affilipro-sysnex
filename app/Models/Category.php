@@ -40,4 +40,14 @@ class Category extends Model
     {
         return $this->belongsToMany(ComparisonField::class, 'category_comparison_fields');
     }
+
+    public function products()
+    {
+        return Product::whereJsonContains('category_ids', (string)$this->id)->where('status', '1');
+    }
+
+    public function getProductsCountAttribute()
+    {
+        return $this->products()->count();
+    }
 }
