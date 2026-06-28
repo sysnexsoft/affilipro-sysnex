@@ -14,4 +14,10 @@ class ComparisonField extends Model
     {
         return $this->belongsToMany(Category::class, 'category_comparison_fields');
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'comparison_field_products')
+            ->withPivot('value')
+            ->withTimestamps();
+    }
 }

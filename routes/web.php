@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\WebSettingController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\Admin as Admin;
 
 
@@ -26,9 +27,14 @@ Route::get('/product', [HomeController::class,'product'])->name('product');
 Route::get('/product/{slug}', [HomeController::class,'productDetails'])->name('product.details');
 Route::get('/categories', [HomeController::class,'categories'])->name('categories');
 Route::get('/review', [HomeController::class,'review'])->name('review');
-Route::get('/compare', [HomeController::class,'compare'])->name('compare');
+Route::get('/compare', [ComparisonController::class,'index'])->name('compare');
+Route::post('/compare/add/{id}', [ComparisonController::class, 'add'])->name('compare.add');
+Route::post('/compare/remove/{id}', [ComparisonController::class, 'remove'])->name('compare.remove');
+Route::post('/compare/clear', [ComparisonController::class, 'clear'])->name('compare.clear');
 Route::get('/blog', [HomeController::class,'blog'])->name('blogs');
 Route::get('/blog/{slug}', [HomeController::class,'blogDetails'])->name('blog.details');
+Route::get('/blog-live-search', [HomeController::class,'blogSearch'])->name('blog.search');
+
 Route::get('/currency-switch/{code}', [Admin\CurrencyController::class,'switchCurrency'])->name('currency.switch');
 /*Route::get('/products',[ProductController::class,'index']);
 Route::get('/product/{slug}', [ProductController::class,'details']);

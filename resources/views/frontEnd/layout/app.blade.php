@@ -183,6 +183,37 @@
     });
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script>
+    $(document).on('click', '.btn-add-to-compare', function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+
+        // লারাভেলের রাউট নেম ব্যবহার করে বেস URL তৈরি করা
+        let rawUrl = "{{ route('compare.add', ':id') }}";
+        // প্লেসহোল্ডার :id কে আসল প্রোডাক্ট আইডি দিয়ে রিপ্লেস করা
+        let ajaxUrl = rawUrl.replace(':id', id);
+
+        $.ajax({
+            url: ajaxUrl,
+            type: "POST",
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (response) {
+                // অ্যালার্ট বা টোস্ট নোটিফিকেশন
+                alert(response.message);
+
+                if (response.status === 'success') {
+                    // হেডারের কাউন্ট ব্যাজ আপডেট
+                    $('.compare-count-badge').text(response.count);
+                }
+            },
+            error: function () {
+                alert('Something went wrong. Please try again.');
+            }
+        });
+    });
+</script>
 </body>
 </html>
 

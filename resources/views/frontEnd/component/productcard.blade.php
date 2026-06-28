@@ -11,6 +11,9 @@
             <span class="text-lg font-extrabold text-slate-900">
                 {{ format_price($product->sale_price) }}</span>
             <a href="{{route('product.details',$product->slug)}}" class="btn-accent text-xs px-3 py-1.5 no-underline">Details</a>
+            <button type="button" data-id="{{ $product->id }}" class="btn-add-to-compare btn btn-sm btn-outline-secondary">
+                <i class="fa fa-exchange"></i> Add to Compare
+            </button>
         </div>
     </a>
 </div>

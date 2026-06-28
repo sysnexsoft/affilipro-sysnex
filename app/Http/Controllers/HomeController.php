@@ -156,6 +156,76 @@ class HomeController extends Controller
         $categories = BlogCategory::where('status',1)->get();
         return view('frontEnd.blog.index',compact('blogs','categories'));
     }
+    public function blogDetails($slug)
+    {
+        // মেইন ব্লগ কন্টেন্ট (ক্যাটাগরি রিলেশনসহ)
+        $blog = Blog::with('category')->where('slug', $slug)->where('status', 1)->firstOrFail();
+
+        // পেজ ভিউ বা রিড কাউন্ট ১ বাড়িয়ে দেওয়া (অপশনাল কিন্তু প্রিমিয়াম ফিচারের জন্য দারুণ)
+        $blog->increment('views');
+
+        // ২. রিলেটেড ব্লগস (একই ক্যাটাগরির অন্য ৩টি পোস্ট, বর্তমান পোস্টটি বাদে)
+        $relatedBlogs = Blog::with('category')
+            ->where('category_id', $blog->category_id)
+            ->where('id', '!=', $blog->id)
+            ->where('status', 1)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // ৩. সাইডবারের জন্য লেটেস্ট ৫টি ব্লগ পাবলিকেশন
+        $latestBlogs = Blog::with('category')
+            ->where('id', '!=', $blog->id)
+            ->where('status', 1)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // ৪. ক্যাটাগরি লিস্ট (যদি সাইডবারে পরে উইজেট হিসেবে দেখাতে চান)
+        $categories = BlogCategory::where('status', 1)->get();
+
+        return view('frontEnd.blog.blogdetails', compact('blog', 'relatedBlogs', 'latestBlogs', 'categories'));
+    }
+
+// সাইডবার লাইভ সার্চের জন্য AJAX এপিআই মেথড
+    public function blogSearch(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = $request->get('query');
+
+            $blogs = Blog::where('status', 1)
+                ->where(function($q) use ($query) {
+                    $q->where('title', 'LIKE', "%{$query}%")
+                        ->orWhere('description', 'LIKE', "%{$query}%");
+                })
+                ->latest()
+                ->take(6)
+                ->get();
+
+            $html = '';
+            foreach ($blogs as $item) {
+                $url = route('blog.details', $item->slug);
+                $thumbnail = $item->thumbnail ? asset($item->thumbnail) : asset('default-thumbnail.jpg');
+
+                // ড্রপডাউনের জন্য প্রিমিয়াম ডিজাইন লিস্ট আইটেম স্ট্রাকচার
+                $html .= "
+            <a href='{$url}' class='flex items-center gap-3 p-2.5 hover:bg-slate-50 transition border-b border-slate-100 last:border-0 no-underline group'>
+                <img src='{$thumbnail}' alt='{$item->title}' class='w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-slate-100'>
+                <div class='min-w-0'>
+                    <h6 class='text-xs font-semibold text-slate-800 line-clamp-1 group-hover:text-primary transition-colors m-0'>{$item->title}</h6>
+                    <span class='text-[10px] text-slate-400'><i class='fa-regular fa-calendar me-1'></i> " . $item->created_at->format('M d, Y') . "</span>
+                </div>
+            </a>";
+            }
+
+            return response()->json([
+                'html'  => $html,
+                'count' => $blogs->count()
+            ]);
+        }
+
+        return abort(404);
+    }
     public function compare(){
         return view('frontEnd.compare.index');
     }

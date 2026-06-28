@@ -63,6 +63,12 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+    public function comparisonFields()
+    {
+        return $this->belongsToMany(ComparisonField::class, 'comparison_field_products')
+            ->withPivot('value')
+            ->withTimestamps();
+    }
 
     public function specifications()
     {

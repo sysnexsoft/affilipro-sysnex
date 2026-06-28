@@ -70,7 +70,9 @@
         <div class="hidden lg:flex items-center gap-7">
             <a href="{{ route('home') }}" class="nav-link-premium {{ request()->routeIs('home') ? 'text-primary' : '' }}">Home</a>
             <a href="{{ route('product') }}" class="nav-link-premium {{ request()->routeIs('product') ? 'text-primary' : '' }}">Products</a>
-            <a href="{{ route('compare') }}" class="nav-link-premium {{ request()->routeIs('compare') ? 'text-primary' : '' }}">Compare</a>
+            <a href="{{ route('compare') }}" class="nav-link-premium {{ request()->routeIs('compare') ? 'text-primary' : '' }}">
+                Compare
+            </a>
             <a href="{{ route('categories') }}" class="nav-link-premium {{ request()->routeIs('categories') ? 'text-primary' : '' }}">Categories</a>
             <a href="{{ route('review') }}" class="nav-link-premium {{ request()->routeIs('review') ? 'text-primary' : '' }}">Reviews</a>
             <a href="{{ route('blogs') }}" class="nav-link-premium {{ request()->routeIs('blogs') ? 'text-primary' : '' }}">Blog</a>
@@ -82,8 +84,10 @@
             <a href="{{ route('product') }}" class="text-slate-600 hover:text-primary">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </a>
-            <a href="{{ route('compare') }}" class="btn-grad text-sm no-underline" style="padding: 0.7rem 1.6rem;">
-                <i class="fa-solid fa-scale-balanced me-1"></i> Compare Top Picks
+            <a href="{{ route('compare') }}" class="btn-grad text-sm no-underline " style="padding: 0.7rem 1.6rem;">
+                <i class="fa-solid fa-scale-balanced me-1"></i> Compare Top Picks <span class="translate-middle badge rounded-pill bg-danger">
+                    {{ count(session()->get('compare_products', [])) }}
+                </span>
             </a>
         </div>
 
