@@ -125,13 +125,8 @@ class HomeController extends Controller
     }
     public function productDetails($slug)
     {
-        // ১. মূল প্রোডাক্টটি খুঁজে বের করা
         $product = Product::where('slug', $slug)->where('status', 1)->firstOrFail();
-
-        // ২. রিলেটেড প্রোডাক্ট বের করার কুয়েরি
-        // কারেন্ট প্রোডাক্টের ক্যাটাগরি অ্যারে থেকে আইডিগুলো নেওয়া হচ্ছে (ফেলব্যাক হিসেবে খালি অ্যারে)
         $categoryIds = $product->category_ids ?? [];
-
         $relatedProducts = Product::where('status', 1)
             ->where('id', '!=', $product->id) // বর্তমান প্রোডাক্টটিকে লিস্ট থেকে বাদ দেওয়ার জন্য
             ->where(function ($query) use ($categoryIds) {
@@ -141,11 +136,13 @@ class HomeController extends Controller
                         ->orWhereJsonContains('category_ids', (string)$id); // টাইপ কাস্টিং সেফটি
                 }
             })
-            ->take(4) // কয়টা রিলেটেড প্রোডাক্ট দেখাতে চান (যেমন: ৪ টা)
-            ->inRandomOrder() // র্যান্ডমাইজড আকারে দেখানোর জন্য (ঐচ্ছিক)
+            ->take(4)
+            ->inRandomOrder()
             ->get();
 
-        return view('frontEnd.product.details', compact('product', 'relatedProducts'));
+        $reviews = $product->reviews()->latest()->paginate(10);
+
+        return view('frontEnd.product.details', compact('product', 'relatedProducts','reviews'));
     }
     public function categories(){
         $categories = Category::where('status',1)->get();
@@ -186,7 +183,20 @@ class HomeController extends Controller
 
         return view('frontEnd.blog.blogdetails', compact('blog', 'relatedBlogs', 'latestBlogs', 'categories'));
     }
+    public function getReviews(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        $reviews = $product->reviews()->latest()->paginate(10);
+        $html = '';
+        foreach($reviews as $rev) {
+            $html .= view('frontEnd.product.single_review', compact('rev'))->render();
+        }
 
+        return response()->json([
+            'html' => $html,
+            'hasMorePages' => $reviews->hasMorePages() // আরও পেজ আছে কিনা তা ফ্রন্টএন্ডকে জানাবে
+        ]);
+    }
 // সাইডবার লাইভ সার্চের জন্য AJAX এপিআই মেথড
     public function blogSearch(Request $request)
     {

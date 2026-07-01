@@ -1,24 +1,35 @@
 @extends('frontEnd.layout.app')
 @section('title', 'All Products')
 @section('body')
-    <section class="bg-hero pt-12 pb-16">
-        <div class="container-x">
-            <nav class="crumb text-sm mb-4" data-aos="fade-up">
-                <a href="{{route('home')}}">Home</a>
-                <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i>
+    <section class="pt-8 md:pt-12 bg-gradient-to-b from-slate-50 to-slate-100/50 border-b border-slate-200/40">
+        <div class="container-xxl px-3 md:px-4">
+            <nav class="crumb text-xs md:text-sm mb-3 md:mb-4" data-aos="fade-up">
+                <a href="{{route('home')}}" class="text-slate-400 hover:text-primary transition no-underline">Home</a>
+                <i class="fa-solid fa-angle-right text-slate-300 mx-1.5 text-[10px] md:text-xs"></i>
                 <span class="text-slate-700 font-semibold">Products</span>
             </nav>
-            <h1 class="font-display text-4xl md:text-5xl font-extrabold" data-aos="fade-up">All Products</h1>
-            <p class="text-slate-600 mt-3 max-w-xl" data-aos="fade-up">Every product, independently tested and scored. Filter to find your perfect match.</p>
-            <div class="mt-6 glass rounded-2xl p-2 flex items-center shadow-soft max-w-xl" data-aos="fade-up">
-                <i class="fa-solid fa-magnifying-glass text-slate-400 px-3"></i>
-                <input id="liveSearch" type="text" placeholder="Search products..." class="flex-1 bg-transparent border-0 outline-none py-2" />
+            <div class="mt-1 md:mt-2 bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center shadow-md max-w-xl w-full transition-all duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20" data-aos="fade-up">
+                <div class="flex items-center ps-2 pe-1">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+                </div>
+
+                <input id="liveSearch"
+                       type="text"
+                       placeholder="Search products..."
+                       class="flex-1 bg-transparent border-0 shadow-none outline-none px-2 py-1.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-0 focus:ring-0"
+                       style="box-shadow: none !important; border: none !important; outline: none !important;" />
+
+                {{--<button type="button"
+                        id="btnSearchSubmit"
+                        class="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow flex-shrink-0 cursor-pointer flex items-center gap-1.5 border-0">
+                    <span>Search</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] opacity-80"></i>
+                </button>--}}
             </div>
         </div>
     </section>
-
-    <section class="py-12">
-        <div class="container-x grid lg:grid-cols-4 gap-8">
+    <section class="py-2">
+        <div class="container-xxl grid lg:grid-cols-4 gap-8">
             <aside class="lg:col-span-1">
                 <div class="card-premium p-3 sticky" data-aos="fade-right">
                     <h3 class="font-bold mb-4"><i class="fa-solid fa-sliders text-primary me-2"></i>Filters</h3>

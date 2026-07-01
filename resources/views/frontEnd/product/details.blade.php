@@ -144,30 +144,37 @@
                     </div>
                 </div>
 
-                <div class="card-premium p-6" data-aos="fade-up">
-                    <h2 class="font-display text-2xl font-extrabold mb-4">User Reviews</h2>
-                    <div class="space-y-5" id="reviewList">
-                        @forelse($product->reviews ?? [] as $rev)
-                            <div class="border-b pb-4 last:border-0 last:pb-0">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-bold text-slate-800">{{ $rev->name }}</span>
-                                    <span class="text-warning text-xs">
-                                        @for($j=1; $j<=5; $j++)
-                                            {{ $j <= $rev->rating ? '★' : '☆' }}
-                                        @endfor
-                                    </span>
-                                </div>
-                                <p class="text-slate-600 text-sm italic mt-2">"{{ $rev->review }}"</p>
-                                <span class="text-xs text-slate-400 d-block mt-1">{{ $rev->created_at->diffForHumans() }}</span>
-                            </div>
+                <div class="card-premium p-4 md:p-5 bg-white border border-slate-100 rounded-2xl shadow-sm" data-aos="fade-up">
+                    <h2 class="font-display text-lg md:text-xl font-black text-slate-900 mb-3 tracking-tight">User Reviews</h2>
+
+                    <div class="divide-y divide-slate-100 space-y-3" id="reviewList">
+                        {{-- কন্ট্রোলার থেকে পিজিনেট করা প্রথম ২টা রিভিউ এখানে লুপ হবে --}}
+                        @forelse($reviews ?? [] as $rev)
+                            @include('frontEnd.product.single_review', ['rev' => $rev])
                         @empty
-                            <div class="border-b pb-4">
-                                <div class="flex justify-between items-center"><span class="font-bold text-slate-800">Sarah Jenkins</span><span class="text-warning text-xs">★★★★★</span></div>
-                                <p class="text-slate-600 text-sm italic mt-2">"Absolutely love these. The ANC rivals my much more expensive over-ear headphones."</p>
+                            <div class="review-item pb-1">
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="font-bold text-slate-800 text-sm">Sarah Jenkins</span>
+                                    <span class="text-amber-400 text-[10px] flex gap-0.5">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </span>
+                                </div>
+                                <p class="text-slate-500 text-xs md:text-sm italic mt-1 leading-relaxed">"Absolutely love these. The ANC rivals my much more expensive over-ear headphones."</p>
                             </div>
                         @endforelse
                     </div>
-                    <a href="#" class="btn-ghost mt-5 no-underline">Load more reviews</a>
+
+                    {{-- ২ টার বেশি রিভিউ থাকলেই কেবল লোড মোর বাটন আসবে --}}
+                    @if(isset($reviews) && $reviews->hasMorePages())
+                        <button type="button"
+                                id="btnLoadMoreReviews"
+                                data-product="{{ $product->id }}"
+                                data-page="1"
+                                class="w-full mt-4 py-2.5 bg-slate-50 hover:bg-slate-900 border border-slate-200/60 hover:border-slate-900 text-slate-700 hover:text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm cursor-pointer block text-center">
+                            <span class="btn-text">Load more reviews</span>
+                            <span class="spinner d-none"><i class="fa-solid fa-spinner fa-spin ms-1"></i></span>
+                        </button>
+                    @endif
                 </div>
 
                 <div data-aos="fade-up">
@@ -195,11 +202,11 @@
                         <a href="{{ $product->affiliate_url ?? '#' }}" target="_blank" class="btn-grad w-full text-center mt-4 no-underline block">Get This Deal</a>
                         <div class="mt-3 glass rounded-xl p-3 text-center text-sm">Coupon: <strong>{{ $product->coupon ?? 'EXAMPLE9' }}</strong></div>
                     </div>
-                    <div class="card-premium p-6" data-aos="fade-left">
+                    {{--<div class="card-premium p-6" data-aos="fade-left">
                         <h3 class="font-bold mb-2">Editor's Verdict</h3>
                         <div class="text-5xl font-extrabold text-gradient">{{ number_format($product->editor_score ?? 9.4, 1) }}</div>
                         <p class="text-sm text-slate-500 mt-2">Best balance of sound, comfort and value we tested this year.</p>
-                    </div>
+                    </div>--}}
                 </div>
             </aside>
         </div>
@@ -216,3 +223,55 @@
         </div>
     </section>
 @endsection
+@push('js')
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '#btnLoadMoreReviews', function (e) {
+                e.preventDefault();
+
+                let $btn = $(this);
+                let productId = $btn.data('product');
+                let nextPage = parseInt($btn.data('page')) + 1;
+
+                let $text = $btn.find('.btn-text');
+                let $spinner = $btn.find('.spinner');
+
+                // লারাভেল রাউট ট্রিকস (URL এর পরিবর্তে Route Name ব্যবহার)
+                let baseRoute = "{{ route('product.reviews', ':id') }}";
+                let ajaxUrl = baseRoute.replace(':id', productId) + "?page=" + nextPage;
+
+                // লোডিং স্টেট চালু
+                $text.text('Loading...');
+                $spinner.removeClass('d-none');
+                $btn.prop('disabled', true);
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: "GET",
+                    success: function (response) {
+                        if (response.html && response.html.trim() !== '') {
+                            $('#reviewList').append(response.html);
+                            $btn.data('page', nextPage);
+
+                            $text.text('Load more reviews');
+                            $spinner.addClass('d-none');
+                            $btn.prop('disabled', false);
+
+                            if (!response.hasMorePages) {
+                                $btn.fadeOut(300, function() { $(this).remove(); });
+                            }
+                        } else {
+                            $btn.fadeOut(300, function() { $(this).remove(); });
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to load reviews.');
+                        $text.text('Load more reviews');
+                        $spinner.addClass('d-none');
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

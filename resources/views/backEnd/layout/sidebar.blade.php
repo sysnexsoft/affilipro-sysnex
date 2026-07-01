@@ -183,6 +183,18 @@
                     </a>
                 </li>
             @endif
+
+            @if (auth()->user()->can('seo.list'))
+                <li class="nav-item">
+                    <a class="nav-link" href="{{route('admin.seo.index')}}">
+                    <span class="nav-icon">
+                        <i class="ri-search-2-line"></i>
+                    </span>
+                        <span class="nav-text">Seo Management</span>
+                    </a>
+                </li>
+            @endif
+
         </ul>
     </div>
 </div>

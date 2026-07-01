@@ -112,7 +112,7 @@
                     <span class="eyebrow">Editor curated</span>
                     <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Featured Products</h2>
                 </div>
-                <a href="#" class="btn-ghost no-underline">View all <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                <a href="{{route('product')}}" class="btn-grad  no-underline">View all <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
                 @foreach($featuredProducts as $product)
@@ -190,7 +190,7 @@
                             <td class="p-4 font-bold">${{ $bProduct->sale_price }}</td>
                             <td class="p-4"><span class="badge bg-success text-xs text-white px-2 py-1 rounded">Top Choice</span></td>
                             <td class="p-4 text-end">
-                                <a href="{{route('product.details',$bProduct->slug)}}" class="btn-ghost btn-sm no-underline">View Details</a>
+                                <a href="{{route('product.details',$bProduct->slug)}}" class="btn-grad  btn-sm no-underline">View Details</a>
                             </td>
                         </tr>
                     @endforeach
@@ -246,7 +246,7 @@
         <div class="container-x">
             <div class="flex items-end justify-between flex-wrap gap-4" data-aos="fade-up">
                 <div><span class="eyebrow">Fresh off the bench</span><h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Latest Reviews & Articles</h2></div>
-                <a href="#" class="btn-ghost no-underline">All posts <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                <a href="#" class="btn-grad no-underline">All posts <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             <div class="grid md:grid-cols-3 gap-6 mt-10">
                 @foreach($latestReviews as $review)

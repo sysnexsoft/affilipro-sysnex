@@ -1,6 +1,5 @@
 @extends('backEnd.layout.master')
 @section('title', 'Add New Blog')
-
 @section('body')
     <div class="py-4">
         <div class="card">

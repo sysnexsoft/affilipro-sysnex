@@ -21,4 +21,15 @@ class Blog extends Model
             'name' => 'Uncategorized'
         ]);
     }
+    public function seo()
+    {
+        return $this->morphOne(SeoManagement::class, 'model', 'model_type', 'model_id');
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($blog) {
+            $blog->seo()->delete();
+        });
+    }
 }

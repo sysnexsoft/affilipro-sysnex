@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductSpecification;
+use App\Models\SeoManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -30,83 +31,64 @@ class ProductController extends Controller
     }
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products,slug',
-            'affiliate_url' => 'required|url',
-        ]);
+        $request->validate(['title' => 'required|string|max:255', 'slug' => 'required|string', 'affiliate_url' => 'required|url']);
 
-        $product = new Product();
-        $product->title = $request->title;
-        $product->slug = Str::slug($request->slug);
-        $product->category_ids = $request->category_ids;
-        $product->sku = $request->sku;
-        $product->brand_id = $request->brand_id;
-        $product->short_description = $request->short_description;
-        $product->description = $request->description;
-        $product->pros = $request->pros;
-        $product->cons = $request->cons;
+        return DB::transaction(function () use ($request) {
+            $product = new Product();
+            $product->fill($request->only([
+                'title', 'sku', 'brand_id', 'short_description', 'description', 'pros', 'cons',
+                'regular_price', 'sale_price', 'coupon', 'affiliate_url', 'affiliate_network', 'commission_rate',
+                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url'
+            ]));
 
-        $product->regular_price = $request->regular_price;
-        $product->sale_price = $request->sale_price;
-        $product->coupon = $request->coupon;
-
-        $product->affiliate_url = $request->affiliate_url;
-        $product->affiliate_network = $request->affiliate_network;
-        $product->commission_rate = $request->commission_rate;
-
-        $product->allow_compare = $request->has('allow_compare');
-        $product->featured = $request->has('featured');
-        $product->trending = $request->has('trending');
-        $product->best_seller = $request->has('best_seller');
-        $product->editors_choice = $request->has('editors_choice');
-
-        $product->meta_title = $request->has('meta_title');
-        $product->meta_description = $request->has('meta_description');
-        $product->meta_keywords = $request->has('meta_keywords');
-        $product->canonical_url = $request->has('canonical_url');
-
-        if($request->hasFile('featured_image')){
-            $product->featured_image =  ImageHelper::upload($request->file('featured_image'), 'uploads/products/thumbnails');
-        }
-        $product->save();
-
-        // গ্যালারি ইমেজ সেভ
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $index => $image) {
-                $path = ImageHelper::upload($image, 'uploads/products/gallery');
-                $product->images()->create([
-                    'image' => $path,
-                    'position' => $index
-                ]);
+            // ⚡ ১. অটোমেটিক ইউনিক স্ল্যাগ জেনারেটর (ইউনিক না হওয়া পর্যন্ত লুপ চলবে)
+            $slug = Str::slug($request->slug ?? $request->title);
+            $originalSlug = $slug;
+            $count = 1;
+            while (Product::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
             }
-        }
+            $product->slug = $slug; // এটি এখন গ্যারান্টেড ইউনিক স্ল্যাগ
 
-        // স্পেসিফিকেশন সেভ
-        if ($request->has('specs')) {
-            foreach ($request->specs as $spec) {
-                if (!empty($spec['name']) && !empty($spec['value'])) {
-                    $product->specifications()->create([
-                        'spec_name' => $spec['name'],
-                        'spec_value' => $spec['value']
-                    ]);
-                }
+            $product->category_ids = $request->category_ids;
+
+            // চেকবক্স শর্টহ্যান্ড
+            foreach (['allow_compare', 'featured', 'trending', 'best_seller', 'editors_choice'] as $field) {
+                $product->$field = $request->has($field);
             }
-        }
 
-        // এফএকিউ (FAQs) সেভ
-        if ($request->has('faqs')) {
-            foreach ($request->faqs as $faq) {
-                if (!empty($faq['question']) && !empty($faq['answer'])) {
-                    $product->faqs()->create([
-                        'question' => $faq['question'],
-                        'answer' => $faq['answer']
-                    ]);
-                }
+            if($request->hasFile('featured_image')) {
+                $product->featured_image = ImageHelper::upload($request->file('featured_image'), 'uploads/products/thumbnails');
             }
-        }
+            $product->save();
 
-        return redirect()->route('admin.product.index')->with('success', 'Product created successfully!');
+            // ২. গ্যালারি ইমেজ বাল্ক ইনসার্ট
+            if ($request->hasFile('gallery_images')) {
+                $gallery = collect($request->file('gallery_images'))->map(fn($img, $i) => [
+                    'image' => ImageHelper::upload($img, 'uploads/products/gallery'), 'position' => $i, 'created_at' => now(), 'updated_at' => now()
+                ])->toArray();
+                $product->images()->insert($gallery);
+            }
+
+            // ৩. স্পেসিফিকেশন বাল্ক ইনসার্ট
+            if ($request->has('specs')) {
+                $specs = collect($request->specs)->filter(fn($s) => !empty($s['name']) && !empty($s['value']))
+                    ->map(fn($s) => ['spec_name' => $s['name'], 'spec_value' => $s['value']])->toArray();
+                $product->specifications()->createMany($specs);
+            }
+
+            // ৪. এফএকিউ বাল্ক ইনসার্ট
+            if ($request->has('faqs')) {
+                $faqs = collect($request->faqs)->filter(fn($f) => !empty($f['question']) && !empty($f['answer']))->toArray();
+                $product->faqs()->createMany($faqs);
+            }
+            // ইগার লোড ও SEO মেথড কল
+            $product->load('brand');
+
+            \App\Helpers\SeoHelper::generateAutoSeo($product, $request, 'Product');
+
+            return redirect()->route('admin.product.index')->with('success', 'Product created successfully!');
+        });
     }
     public function edit($id)
     {
@@ -117,119 +99,98 @@ class ProductController extends Controller
     }
     public function update(Request $request, $id)
     {
-        // ১. প্রোডাক্টটি খুঁজে বের করা
-        $product = Product::with(['images', 'specifications', 'faqs'])->findOrFail($id);
-
-        // ২. ভ্যালিডেশন (স্ল্যাগ ইউনিক চেক করার সময় এই প্রোডাক্টের আইডি বাদ দেওয়া হয়েছে)
-        $validatedData = $request->validate([
+        // ১. ভ্যালিডেশন (স্ল্যাগ ইউনিক চেক করার সময় এই প্রোডাক্টের আইডি ইগনোর করা হয়েছে)
+        $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products,slug,' . $product->id,
+            'slug' => 'required|string|unique:products,slug,' . $id,
             'affiliate_url' => 'required|url',
         ]);
 
-        // ৩. মেইন প্রোডাক্ট ডেটা আপডেট
-        $product->title = $request->title;
-        $product->slug = Str::slug($request->slug);
-        $product->category_ids = $request->category_ids;
-        $product->sku = $request->sku;
-        $product->brand_id = $request->brand_id;
-        $product->short_description = $request->short_description;
-        $product->description = $request->description;
-        $product->pros = $request->pros;
-        $product->cons = $request->cons;
+        return DB::transaction(function () use ($request, $id) {
+            // ২. প্রোডাক্ট খুঁজে বের করা
+            $product = Product::findOrFail($id);
 
-        $product->regular_price = $request->regular_price;
-        $product->sale_price = $request->sale_price;
-        $product->coupon = $request->coupon;
+            // ৩. মেইন প্রোডাক্ট ডাটা একবারে আপডেট করা (Mass Assignment শর্টহ্যান্ড)
+            $product->fill($request->only([
+                'title', 'sku', 'brand_id', 'short_description', 'description', 'pros', 'cons',
+                'regular_price', 'sale_price', 'coupon', 'affiliate_url', 'affiliate_network', 'commission_rate',
+                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url'
+            ]));
 
-        $product->affiliate_url = $request->affiliate_url;
-        $product->affiliate_network = $request->affiliate_network;
-        $product->commission_rate = $request->commission_rate;
-
-        // চেকবক্স/টগল ফিল্ডস (অন না থাকলে ০/false সেভ হবে)
-        $product->allow_compare = $request->has('allow_compare');
-        $product->featured = $request->has('featured');
-        $product->trending = $request->has('trending');
-        $product->best_seller = $request->has('best_seller');
-        $product->editors_choice = $request->has('editors_choice');
-        $product->status = $request->has('status');
-
-        // এসইও মেটা ফিল্ডস ফিক্সড (has() এর বদলে সরাসরি ইনপুট নেওয়া হয়েছে)
-        $product->meta_title = $request->meta_title;
-        $product->meta_description = $request->meta_description;
-        $product->meta_keywords = $request->meta_keywords;
-        $product->canonical_url = $request->canonical_url;
-
-        // ৪. থাম্বনেইল ইমেজ আপডেট (পুরাতন ইমেজ অটো ডিলিট হবে হেল্পারের মাধ্যমে)
-        if($request->hasFile('featured_image')){
-            $product->featured_image = ImageHelper::upload(
-                $request->file('featured_image'),
-                'uploads/products/thumbnails',
-                null,
-                null,
-                $product->featured_image
-            );
-        }
-
-        $product->save();
-
-        // ৫. নতুন গ্যালারি ইমেজ সেভ (পুরাতনগুলো রেখে নতুনগুলো অ্যাপেন্ড হবে)
-        if ($request->hasFile('gallery_images')) {
-            // নতুন পজিশন কাউন্ট করার জন্য কারেন্ট ইমেজের সংখ্যা বের করা
-            $currentImagesCount = $product->images()->count();
-
-            foreach ($request->file('gallery_images') as $index => $image) {
-                $path = ImageHelper::upload($image, 'uploads/products/gallery');
-                $product->images()->create([
-                    'image' => $path,
-                    'position' => $currentImagesCount + $index
-                ]);
+            // ⚡ অটোমেটিক ইউনিক স্ল্যাগ জেনারেটর (নিজের আইডি ইগনোর করে চেক করবে)
+            $slug = Str::slug($request->slug ?? $request->title);
+            $originalSlug = $slug;
+            $count = 1;
+            while (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
             }
-        }
+            $product->slug = $slug;
 
-        // ৬. স্পেসিফিকেশন সিঙ্ক (পুরাতনগুলো ডিলিট করে নতুনগুলো ইনসার্ট করা সবচেয়ে ক্লিন উপায়)
-        $product->specifications()->delete();
-        if ($request->has('specs')) {
-            foreach ($request->specs as $spec) {
-                if (!empty($spec['name']) && !empty($spec['value'])) {
-                    $product->specifications()->create([
-                        'spec_name' => $spec['name'],
-                        'spec_value' => $spec['value']
-                    ]);
-                }
+            $product->category_ids = $request->category_ids;
+
+            // চেকবক্স/টগল শর্টহ্যান্ড
+            foreach (['allow_compare', 'featured', 'trending', 'best_seller', 'editors_choice', 'status'] as $field) {
+                $product->$field = $request->has($field);
             }
-        }
 
-        // ৭. এফএকিউ (FAQs) সিঙ্ক
-        $product->faqs()->delete();
-        if ($request->has('faqs')) {
-            foreach ($request->faqs as $faq) {
-                if (!empty($faq['question']) && !empty($faq['answer'])) {
-                    $product->faqs()->create([
-                        'question' => $faq['question'],
-                        'answer' => $faq['answer']
-                    ]);
-                }
+            // থাম্বনেইল ইমেজ আপডেট
+            if($request->hasFile('featured_image')){
+                $product->featured_image = ImageHelper::upload($request->file('featured_image'), 'uploads/products/thumbnails', null, null, $product->featured_image);
             }
-        }
+            $product->save();
 
-        return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');
+            // ৪. নতুন গ্যালারি ইমেজ বাল্ক অ্যাপেন্ড (১ লাইনে লুপ ও ইনসার্ট)
+            if ($request->hasFile('gallery_images')) {
+                $currentImagesCount = $product->images()->count();
+                $gallery = collect($request->file('gallery_images'))->map(fn($img, $i) => [
+                    'product_id' => $id, 'image' => ImageHelper::upload($img, 'uploads/products/gallery'), 'position' => $currentImagesCount + $i, 'created_at' => now(), 'updated_at' => now()
+                ])->toArray();
+                $product->images()->insert($gallery);
+            }
+
+            // ৫. স্পেসিফিকেশন সিঙ্ক (পুরাতন ডিলিট করে ১ লাইনে বাল্ক ইনসার্ট)
+            $product->specifications()->delete();
+            if ($request->has('specs')) {
+                $specs = collect($request->specs)->filter(fn($s) => !empty($s['name']) && !empty($s['value']))
+                    ->map(fn($s) => ['spec_name' => $s['name'], 'spec_value' => $s['value']])->toArray();
+                $product->specifications()->createMany($specs);
+            }
+
+            // ৬. এফএকিউ (FAQs) সিঙ্ক (পুরাতন ডিলিট করে ১ লাইনে বাল্ক ইনসার্ট)
+            $product->faqs()->delete();
+            if ($request->has('faqs')) {
+                $faqs = collect($request->faqs)->filter(fn($f) => !empty($f['question']) && !empty($f['answer']))->toArray();
+                $product->faqs()->createMany($faqs);
+            }
+
+            // ৭. ইগার লোড ও SEO মেথড কল (ক্যাশিং ফ্রেন্ডলি)
+            $product->load('brand');
+            \App\Helpers\SeoHelper::generateAutoSeo($product, $request, 'Product');
+
+            return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');
+        });
     }
     public function destroy(Request $request)
     {
-        $product = Product::with('images')->findOrFail($request->id);
-        if ($product->featured_image && file_exists(public_path($product->featured_image))) {
-            @unlink(public_path($product->featured_image));
-        }
-        if ($product->images->count() > 0) {
-            foreach ($product->images as $galleryImg) {
+        $product = Product::with(['images', 'seo'])->findOrFail($request->id);
+        return DB::transaction(function () use ($product) {
+            if ($product->featured_image && file_exists(public_path($product->featured_image))) {
+                @unlink(public_path($product->featured_image));
+            }
+            $product->images->each(function ($galleryImg) {
                 if ($galleryImg->image && file_exists(public_path($galleryImg->image))) {
                     @unlink(public_path($galleryImg->image));
                 }
+            });
+            if ($product->seo) {
+                $product->seo()->delete();
             }
-        }
-        $product->delete();
-        return redirect()->route('admin.product.index')->with('success', 'Product and all associated assets deleted successfully!');
+            $product->images()->delete();
+            $product->specifications()->delete();
+            $product->faqs()->delete();
+            $product->delete();
+            return redirect()->route('admin.product.index')->with('success', 'Product, SEO Data, and all assets deleted successfully!');
+        });
     }
     public function deleteGalleryImage($id)
     {

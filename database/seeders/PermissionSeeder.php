@@ -22,6 +22,7 @@ class PermissionSeeder extends Seeder
             'setting', 'reset.password',
             'user.list', 'user.store','user.update','user.delete',
             'currency.list', 'currency.store','currency.update','currency.delete',
+            'seo.list','seo.store','seo.update','seo.delete',
         ];
 
         // Create Permissions

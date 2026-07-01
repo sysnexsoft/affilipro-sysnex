@@ -88,4 +88,15 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
+    public function seo()
+    {
+        return $this->morphOne(SeoManagement::class, 'model', 'model_type', 'model_id');
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($service) {
+            $service->seo()->delete();
+        });
+    }
 }

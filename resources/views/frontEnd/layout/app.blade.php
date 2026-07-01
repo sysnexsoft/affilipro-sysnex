@@ -3,17 +3,39 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AffiliPro — Expert Product Reviews, Comparisons & Best Deals</title>
-    <meta name="description" content="AffiliPro delivers independent, data-driven product reviews, side-by-side comparisons and the best verified deals across tech, home and lifestyle." />
-    <meta name="keywords" content="product reviews, best deals, affiliate, comparisons, buying guides" />
-    <link rel="canonical" href="{{route('home')}}" />
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="AffiliPro — Expert Product Reviews & Best Deals" />
-    <meta property="og:description" content="Independent, data-driven product reviews and the best verified deals." />
-    <meta property="og:image" content="{{asset('/')}}Frontend/assets/img/hero.jpg" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <!-- Fonts -->
+    <title>@yield('title') — {{env('APP_NAME')}}</title>
+
+    <meta name="title" content="{{ $seo->meta_title ?? '' }}">
+    <meta name="description" content="{{ $seo->meta_description ?? '' }}">
+    <meta name="keywords" content="{{ $seo->meta_keywords ?? '' }}">
+    <meta name="robots" content="{{ $seo->meta_robots ?? 'index, follow' }}">
+    <meta name="author" content="{{env('APP_NAME')}}">
+    <meta name="publisher" content="{{env('APP_NAME')}}">
+    <link rel="canonical" href="{{ $seo->canonical_url ?? url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $seo->meta_title ?? '' }}">
+    <meta property="og:description" content="{{ $seo->meta_description ?? '' }}">
+    <meta property="og:image" content="{{ isset($seo->meta_image) ? asset($seo->meta_image) : asset('default-og-image.jpg') }}">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $seo->meta_title ?? '' }}">
+    <meta property="twitter:description" content="{{ $seo->meta_description ?? '' }}">
+    <meta property="twitter:image" content="{{ isset($seo->meta_image) ? asset($seo->meta_image) : asset('default-og-image.jpg') }}">
+
+    @if(!empty($seo->datalayer_json))
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({!! $seo->datalayer_json !!});
+        </script>
+    @endif
+
+    @if(!empty($seo->schema_script))
+        {!! $seo->schema_script !!}
+    @endif
+
+
+<!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -135,6 +157,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('/')}}Frontend/assets/js/data.js"></script>
 {{--<script src="{{asset('/')}}Frontend/assets/js/components.js"></script>--}}
 <script src="{{asset('/')}}Frontend/assets/js/home.js"></script>
@@ -183,34 +206,111 @@
     });
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 <script>
-    $(document).on('click', '.btn-add-to-compare', function (e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-
-        // লারাভেলের রাউট নেম ব্যবহার করে বেস URL তৈরি করা
-        let rawUrl = "{{ route('compare.add', ':id') }}";
-        // প্লেসহোল্ডার :id কে আসল প্রোডাক্ট আইডি দিয়ে রিপ্লেস করা
-        let ajaxUrl = rawUrl.replace(':id', id);
-
-        $.ajax({
-            url: ajaxUrl,
-            type: "POST",
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function (response) {
-                // অ্যালার্ট বা টোস্ট নোটিফিকেশন
-                alert(response.message);
-
-                if (response.status === 'success') {
-                    // হেডারের কাউন্ট ব্যাজ আপডেট
-                    $('.compare-count-badge').text(response.count);
-                }
-            },
-            error: function () {
-                alert('Something went wrong. Please try again.');
+    $(document).ready(function () {
+        // CSRF টোকেন গ্লোবাল সেটআপ
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
+        });
+
+        // কমন SweetAlert2 টোস্ট ফাংশন
+        function showToast(icon, message, timer = 2500) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: icon,
+                title: message,
+                showConfirmButton: false,
+                timer: timer,
+                timerProgressBar: true
+            });
+        }
+
+        // কাউন্টার এবং ক্লিয়ার বাটন রিয়েল-টাইম আপডেট করার ফাংশন
+        function updateUIVisuals(count) {
+            $('.compare-count-badge').text(count);
+
+            if(count >= 2) {
+                $('#btnClearCompare').removeClass('d-none');
+            } else {
+                $('#btnClearCompare').addClass('d-none');
+            }
+        }
+
+        // ১. প্রোডাক্ট অ্যাড করার AJAX
+        $(document).on('click', '.btn-add-to-compare', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+
+            let rawUrl = "{{ route('compare.add', ':id') }}";
+            let ajaxUrl = rawUrl.replace(':id', id);
+
+            $.ajax({
+                url: ajaxUrl,
+                type: "POST",
+                success: function (response) {
+                    if (response.status === 'success') {
+                        showToast('success', response.message);
+                        updateUIVisuals(response.count);
+                    } else {
+                        showToast('warning', response.message, 3000);
+                    }
+                },
+                error: function () {
+                    showToast('error', 'Something went wrong. Please try again.', 3000);
+                }
+            });
+        });
+
+        // ২. প্রোডাক্ট রিমুভ করার AJAX (সরাসরি রিমুভ)
+        $(document).on('click', '.btn-remove-compare', function (e) {
+            e.preventDefault();
+            let productId = $(this).data('id');
+
+            let rawUrl = "{{ route('compare.remove', ':id') }}";
+            let ajaxUrl = rawUrl.replace(':id', productId);
+
+            $.ajax({
+                url: ajaxUrl,
+                type: "POST",
+                success: function (response) {
+                    if (response.status === 'success') {
+                        $('#compareTableContainer').html(response.html);
+                        updateUIVisuals(response.count);
+                        showToast('success', response.message); // রিমুভ হওয়ার পর টোস্ট
+                    } else {
+                        showToast('warning', response.message);
+                    }
+                },
+                error: function () {
+                    showToast('error', 'Something went wrong!');
+                }
+            });
+        });
+
+        // ৩. সম্পূর্ণ লিস্ট ক্লিয়ার করার AJAX (সরাসরি ক্লিয়ার)
+        $('#btnClearCompare').on('click', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "{{ route('compare.clear') }}",
+                type: "POST",
+                success: function (response) {
+                    if (response.status === 'success') {
+                        $('#compareTableContainer').html(response.html);
+                        updateUIVisuals(response.count);
+                        showToast('success', response.message); // ক্লিয়ার হওয়ার পর টোস্ট
+                    } else {
+                        showToast('warning', response.message);
+                    }
+                },
+                error: function () {
+                    showToast('error', 'Something went wrong!');
+                }
+            });
         });
     });
 </script>

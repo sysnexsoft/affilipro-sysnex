@@ -34,6 +34,7 @@ Route::post('/compare/clear', [ComparisonController::class, 'clear'])->name('com
 Route::get('/blog', [HomeController::class,'blog'])->name('blogs');
 Route::get('/blog/{slug}', [HomeController::class,'blogDetails'])->name('blog.details');
 Route::get('/blog-live-search', [HomeController::class,'blogSearch'])->name('blog.search');
+Route::get('/product/{id}/reviews', [HomeController::class, 'getReviews'])->name('product.reviews');
 
 Route::get('/currency-switch/{code}', [Admin\CurrencyController::class,'switchCurrency'])->name('currency.switch');
 /*Route::get('/products',[ProductController::class,'index']);
@@ -112,6 +113,14 @@ Route::prefix('admin')->group(function () {
             Route::post('/user/update/{id}','update')->name('admin.user.update');
             Route::post('/user/delete','delete')->name('admin.user.delete');
         });
+
+        Route::get('/seo-manager', [Admin\SeoManagementController::class, 'index'])->name('admin.seo.index');
+        Route::post('/seo-manager/store', [Admin\SeoManagementController::class, 'storeCustomPage'])->name('admin.seo.store_page');
+        Route::get('/seo-manager/edit/{id}', [Admin\SeoManagementController::class, 'editPage'])->name('admin.seo.edit_page');
+        Route::post('/seo-manager/update/{id}', [Admin\SeoManagementController::class, 'updatePage'])->name('admin.seo.update_page');
+        Route::post('/seo-manager/global-update', [Admin\SeoManagementController::class, 'updateGlobal'])->name('admin.seo.global_update');
+
+
         Route::get('/settings', [WebSettingController::class, 'index'])->name('admin.setting');
         Route::post('/settings-update', [WebSettingController::class, 'settingsUpdate'])->name('admin.setting.update');
         Route::get('/reset-password', [AdminAuthController::class, 'resetPasswordIndex'])->name('admin.reset.password');

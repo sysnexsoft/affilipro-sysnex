@@ -70,9 +70,9 @@
         <div class="hidden lg:flex items-center gap-7">
             <a href="{{ route('home') }}" class="nav-link-premium {{ request()->routeIs('home') ? 'text-primary' : '' }}">Home</a>
             <a href="{{ route('product') }}" class="nav-link-premium {{ request()->routeIs('product') ? 'text-primary' : '' }}">Products</a>
-            <a href="{{ route('compare') }}" class="nav-link-premium {{ request()->routeIs('compare') ? 'text-primary' : '' }}">
+            {{--<a href="{{ route('compare') }}" class="nav-link-premium {{ request()->routeIs('compare') ? 'text-primary' : '' }}">
                 Compare
-            </a>
+            </a>--}}
             <a href="{{ route('categories') }}" class="nav-link-premium {{ request()->routeIs('categories') ? 'text-primary' : '' }}">Categories</a>
             <a href="{{ route('review') }}" class="nav-link-premium {{ request()->routeIs('review') ? 'text-primary' : '' }}">Reviews</a>
             <a href="{{ route('blogs') }}" class="nav-link-premium {{ request()->routeIs('blogs') ? 'text-primary' : '' }}">Blog</a>
@@ -84,8 +84,10 @@
             <a href="{{ route('product') }}" class="text-slate-600 hover:text-primary">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </a>
-            <a href="{{ route('compare') }}" class="btn-grad text-sm no-underline " style="padding: 0.7rem 1.6rem;">
-                <i class="fa-solid fa-scale-balanced me-1"></i> Compare Top Picks <span class="translate-middle badge rounded-pill bg-danger">
+            <a href="{{ route('compare') }}" class="btn-grad text-xs md:text-sm font-bold tracking-wide uppercase no-underline d-inline-flex align-items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:translate-y-[-1px] transition-all duration-200 group">
+                <i class="fa-solid fa-arrows-rotate text-slate-400 group-hover:text-white group-hover:rotate-180 transition-transform duration-500"></i>
+                <span>Compare</span>
+                <span class="compare-count-badge bg-rose-500 text-white text-[10px] font-black h-5 min-w-[20px] px-1.5 rounded-full flex items-center justify-center shadow-sm border border-rose-400/20 transition-all">
                     {{ count(session()->get('compare_products', [])) }}
                 </span>
             </a>
