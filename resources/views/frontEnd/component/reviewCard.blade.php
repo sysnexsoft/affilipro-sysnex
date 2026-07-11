@@ -32,7 +32,7 @@
         </div>
 
         <div class="mt-4">
-            <p class="text-slate-600 text-sm leading-relaxed m-0 italic">
+            <p class="text-slate-600 text-sm leading-relaxed m-0 ">
                 "{{ $review->review }}"
             </p>
         </div>

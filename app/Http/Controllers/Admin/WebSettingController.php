@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
+use App\Models\Subscriber;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
 
 class WebSettingController extends Controller
 {
     public function index(){
-        return view('backEnd.auth.setting');
+        return view('backEnd.settings.setting');
     }
     public function settingsUpdate(Request $request){
         $webSetting = WebSetting::first();
@@ -49,5 +50,18 @@ class WebSettingController extends Controller
 
         $webSetting->update($input);
         return back()->with('success','Settings Update Successfully.');
+    }
+    public function subscriber()
+    {
+        $subscribers = Subscriber::latest()->paginate(10);
+
+        return view('backEnd.subscriber.index', compact('subscribers'));
+    }
+
+    public function destroySubscriber(Request $request)
+    {
+        $subscriber = Subscriber::findOrFail($request->id);
+        $subscriber->delete();
+        return redirect()->back()->with('success', 'Subscriber deleted successfully!');
     }
 }

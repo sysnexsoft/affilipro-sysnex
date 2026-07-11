@@ -2,19 +2,19 @@
 @section('title', 'Customer Reviews')
 @section('body')
     <section class="bg-hero pt-8 pb-4">
-        <div class="container-x">
+        <div class="container-xxl ">
             <nav class="crumb text-sm mb-4" data-aos="fade-up">
                 <a href="{{ route('home') }}">Home</a>
                 <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i>
                 <span class="text-slate-700 font-semibold">Reviews</span>
             </nav>
-            <h1 class="font-display text-4xl md:text-5xl font-extrabold" data-aos="fade-up">Customer Feedbacks</h1>
+            <h1 class="font-display text-3xl md:text-4xl font-extrabold" data-aos="fade-up">Customer Feedbacks</h1>
             <p class="text-slate-600 mt-1 max-w-xl" data-aos="fade-up">See what our verified buyers are saying about their independently tested products.</p>
         </div>
     </section>
 
     <section class="py-12">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="grid md:grid-cols-3 gap-6" id="allReviewsContainer">
                 @forelse($reviews as $review)
                     @include('frontEnd.component.reviewCard')

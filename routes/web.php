@@ -10,6 +10,7 @@ use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\Admin as Admin;
 
 
+
 Route::get('/cc', function () {
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
@@ -18,6 +19,8 @@ Route::get('/cc', function () {
     //\Illuminate\Support\Facades\Artisan::call('config:cache');
     return 'Cleared!';
 });
+
+
 
 
 Route::get('/', [HomeController::class,'index'])->name('home');
@@ -35,17 +38,24 @@ Route::get('/blog', [HomeController::class,'blog'])->name('blogs');
 Route::get('/blog/{slug}', [HomeController::class,'blogDetails'])->name('blog.details');
 Route::get('/blog-live-search', [HomeController::class,'blogSearch'])->name('blog.search');
 Route::get('/product/{id}/reviews', [HomeController::class, 'getReviews'])->name('product.reviews');
-
+Route::get('/live-search', [HomeController::class, 'liveSearch'])->name('live.search');
+Route::post('/subscribe', [HomeController::class, 'subscribe'])->name('subscribe.store');
 Route::get('/currency-switch/{code}', [Admin\CurrencyController::class,'switchCurrency'])->name('currency.switch');
-/*Route::get('/products',[ProductController::class,'index']);
-Route::get('/product/{slug}', [ProductController::class,'details']);
-Route::get('/category/{slug}', [ProductController::class,'categoryProducts']);
-Route::post('/review/store', [ProductController::class,'submitReview']);
-Route::get('/buy/{id}', [ProductController::class,'affiliateRedirect']);
-Route::post('/compare/add/{id}', [ProductController::class,'addCompare']);
-Route::post('/compare/remove/{id}', [ProductController::class,'removeCompare']);
-Route::get('/compare', [ProductController::class,'compare']);
-Route::get('/compare/clear', [ProductController::class,'clearCompare']);*/
+// ডাইনামিক পেজ দেখার রাউট
+Route::get('/page/{slug}', [App\Http\Controllers\HomeController::class, 'showPage'])->name('dynamic.page');
+
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', function () {
+    $robotText = "User-agent: *\n"
+        . "Allow: /\n"
+        . "Disallow: /admin/\n"
+        . "Disallow: /login\n"
+        . "Disallow: /register\n\n"
+        . "Sitemap: " . url('/sitemap.xml');
+
+    return response($robotText, 200)->header('Content-Type', 'text/plain');
+});
+
 Route::redirect('/admin', '/admin/login');
 Route::prefix('admin')->group(function () {
 
@@ -70,6 +80,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/category/store', [Admin\CategoryController::class,'store'])->name('admin.category.store');
         Route::post('/category/update/{id}', [Admin\CategoryController::class,'update'])->name('admin.category.update');
         Route::post('/category/delete', [Admin\CategoryController::class,'destroy'])->name('admin.category.delete');
+        Route::post('category/quick-store', [Admin\CategoryController::class, 'quickStore'])->name('admin.category.quickStore');
 
         Route::name('admin.')->group(function () {
             Route::resource('blogs-categories', Admin\BlogCategoryController::class);
@@ -85,6 +96,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/brand/store', [Admin\BrandController::class,'store'])->name('admin.brand.store');
         Route::post('/brand/update/{id}', [Admin\BrandController::class,'update'])->name('admin.brand.update');
         Route::post('/brand/delete', [Admin\BrandController::class,'destroy'])->name('admin.brand.delete');
+        Route::post('brand/quick-store', [Admin\BrandController::class, 'quickStore'])->name('admin.brand.quickStore');
 
         Route::prefix('cms')->name('admin.cms.')->group(function () {
             Route::get('reviews', [Admin\ProductReviewController::class, 'index'])->name('reviews.index');
@@ -120,6 +132,11 @@ Route::prefix('admin')->group(function () {
         Route::post('/seo-manager/update/{id}', [Admin\SeoManagementController::class, 'updatePage'])->name('admin.seo.update_page');
         Route::post('/seo-manager/global-update', [Admin\SeoManagementController::class, 'updateGlobal'])->name('admin.seo.global_update');
 
+        Route::get('/admin/subscribers', [WebSettingController::class, 'subscriber'])->name('admin.subscribers.index');
+        Route::post('/admin/subscribers', [WebSettingController::class, 'destroySubscriber'])->name('admin.subscribers.destroy');
+
+        Route::get('/admin/page-settings', [Admin\PageSettingController::class, 'index'])->name('admin.page_settings.index');
+        Route::post('/admin/page-settings', [Admin\PageSettingController::class, 'update'])->name('admin.page_settings.update');
 
         Route::get('/settings', [WebSettingController::class, 'index'])->name('admin.setting');
         Route::post('/settings-update', [WebSettingController::class, 'settingsUpdate'])->name('admin.setting.update');

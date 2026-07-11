@@ -6,8 +6,11 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\PageSetting;
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\Subscriber;
+use App\Models\WebSetting;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -18,12 +21,12 @@ class HomeController extends Controller
         $featuredProducts = Product::where('status', 1)
             ->where('featured', 1)
             ->latest()
-            ->take(4)
+            ->take(8)
             ->get();
         $bestRatedProducts = Product::withAvg('reviews', 'rating')
         ->where('status', 1)
             ->orderByDesc('reviews_avg_rating')
-            ->take(4)
+            ->take(8)
             ->get();
 
         $latestReviews = ProductReview::with('product')
@@ -32,22 +35,27 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
+        $trendingProduct = Product::where('trending',1)->latest()->first();
+
         return view('frontEnd.home.index', compact(
             'categories',
             'featuredProducts',
             'bestRatedProducts',
-            'latestReviews'
+            'latestReviews',
+            'trendingProduct'
         ));
     }
     public function contactUs(){
         return view('frontEnd.contact-us.index');
     }
     public function aboutUs(){
-        return view('frontEnd.about-us.index');
+        $setting = \App\Models\PageSetting::first();
+        $about_us = $setting ? $setting->about_us : '';
+        return view('frontEnd.about-us.index',compact('about_us'));
     }
     public function product(Request $request)
     {
-        $query = Product::query()->where('status', '1');
+        $query = Product::query()->latest()->where('status', '1');
 
         // ১. ক্যাটাগরি স্লাগ ফিল্টার
         if ($request->has('category') && $request->category != 'all') {
@@ -239,6 +247,31 @@ class HomeController extends Controller
     public function compare(){
         return view('frontEnd.compare.index');
     }
+    public function showPage($slug)
+    {
+        $allowedPages = [
+            'privacy-policy'       => ['field' => 'privacy_policy', 'title' => 'Privacy Policy'],
+            'terms-conditions'     => ['field' => 'terms_conditions', 'title' => 'Terms & Conditions'],
+            'disclosure'           => ['field' => 'disclosure', 'title' => 'Disclosure'],
+            'affiliate-disclosure' => ['field' => 'affiliate_disclosure', 'title' => 'Affiliate Disclosure'],
+            'disclaimer'           => ['field' => 'disclaimer', 'title' => 'Disclaimer'],
+            'about-us'             => ['field' => 'about_us', 'title' => 'About Us'],
+            'contact-info'         => ['field' => 'contact_info', 'title' => 'Contact Info'],
+            'cookie-policy'        => ['field' => 'cookie_policy', 'title' => 'Cookie Policy'],
+        ];
+
+        // যদি ইউআরএল এর slug টি লিস্টে না থাকে তবে ৪MD৪ নট ফাউন্ড দেখাবে
+        if (!array_key_exists($slug, $allowedPages)) {
+            abort(404);
+        }
+
+        $setting = PageSetting::first();
+        $pageInfo = $allowedPages[$slug];
+        $dbField = $pageInfo['field'];
+        $title = $pageInfo['title'];
+        $content = $setting ? $setting->$dbField : 'No content available.';
+        return view('frontEnd.page.dynamic-page', compact('title', 'content'));
+    }
     public function review(Request $request)
     {
         $reviews = ProductReview::with('product')
@@ -261,4 +294,72 @@ class HomeController extends Controller
 
         return view('frontEnd.review.index', compact( 'reviews'));
     }
+    public function liveSearch(Request $request)
+    {
+        $query = $request->input('search');
+
+        if (strlen($query) < 2) {
+            return response()->json(['products' => [], 'blogs' => []]);
+        }
+
+        // স্ট্রিন্টটিকে ক্লিন করে স্পেস দিয়ে আলাদা করা (Fulltext Matching এর জন্য)
+        $cleanQuery = trim(preg_replace('/\s+/', ' ', $query));
+
+        // ১. PRODUCTS SUPER FAST SEARCH
+        $products = Product::where('status', '1') // একটিভ প্রোডাক্ট ফিল্টার (যদি থাকে)
+        ->where(function($q) use ($cleanQuery) {
+            // MATCH AGAINST ব্যবহার করে ইন্ডেক্সড সার্চ (Super Fast)
+            $q->whereRaw("MATCH(search_keywords) AGAINST(? IN BOOLEAN MODE)", [$cleanQuery . '*'])
+                // ফলব্যাক লজিক (নিরাপত্তার জন্য, যদি কোনো কারণে ফুলটেক্সট মিস হয়)
+                ->orWhere('search_keywords', 'LIKE', "%{$cleanQuery}%");
+        })
+            ->select('id', 'title', 'slug', 'featured_image', 'regular_price', 'sale_price')
+            ->take(5)
+            ->get()
+            ->map(function($product) {
+                $product->image_url = asset($product->featured_image ?? 'frontEnd/assets/default.png');
+                $product->formatted_price = format_price($product->sale_price ?? $product->regular_price);
+                return $product;
+            });
+
+        // ২. BLOGS SUPER FAST SEARCH
+        $blogs = Blog::where('status', '1') // একটিভ ব্লগ ফিল্টার (যদি থাকে)
+        ->where(function($q) use ($cleanQuery) {
+            // MATCH AGAINST ব্যবহার করে ইন্ডেক্সড সার্চ (Super Fast)
+            $q->whereRaw("MATCH(search_keywords) AGAINST(? IN BOOLEAN MODE)", [$cleanQuery . '*'])
+                // ফলব্যাক লজিক
+                ->orWhere('search_keywords', 'LIKE', "%{$cleanQuery}%");
+        })
+            ->select('id', 'title', 'slug', 'thumbnail', 'affiliate_source')
+            ->take(5)
+            ->get()
+            ->map(function($blog) {
+                $blog->route_url = route('blog.details', $blog->slug);
+                $blog->image_url = asset($blog->thumbnail ?? 'frontEnd/assets/default.png');
+                return $blog;
+            });
+
+        return response()->json([
+            'products' => $products,
+            'blogs' => $blogs
+        ]);
+    }
+    public function subscribe(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:subscribers,email'
+        ], [
+            'email.required' => 'The email field is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'You have already subscribed!'
+        ]);
+        Subscriber::create([
+            'email' => $request->email
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Thank you for subscribing!'
+        ], 200);
+    }
+
 }

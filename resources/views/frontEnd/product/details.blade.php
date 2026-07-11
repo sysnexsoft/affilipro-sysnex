@@ -2,31 +2,47 @@
 @section('title', $product->title ?? 'Product Details')
 @section('body')
     <section class="py-8">
-        <div class="container-x grid lg:grid-cols-2 gap-10">
+        <div class="container-xl grid lg:grid-cols-2 gap-10">
             <div data-aos="fade-right">
-                <div class="card-premium p-4" style="height: 100%">
-                    <div class="swiper gallery-swiper rounded-xl overflow-hidden relative" style="height: 80%">
+                <div class="card-premium p-2" style="height: 100%">
+                    <!-- Main Slider (Height 85%) -->
+                    <div class="swiper gallery-swiper rounded-xl overflow-hidden relative">
                         <div class="swiper-wrapper" id="galleryWrap">
-                            <div class="swiper-slide aspect-video grid place-items-center bg-slate-50 overflow-hidden">
-                                <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}" alt="{{ $product->title ?? 'Product Image' }}" class="w-full h-full object-contain p-2">
+                            <!-- Featured Image -->
+                            <div class="swiper-slide grid place-items-center bg-slate-50 overflow-hidden w-full h-full group cursor-zoom-in">
+                                <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}"
+                                     alt="{{ $product->title ?? 'Product Image' }}"
+                                     class="w-full h-full object-contain transition-transform duration-500 ease-in-out group-hover:scale-110">
                             </div>
-                            @foreach($product->images as $image)
-                            <div class="swiper-slide aspect-video grid place-items-center bg-slate-50 overflow-hidden">
-                                <img src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}" alt="{{ $product->title ?? 'Product Image' }}" class="w-full h-full object-contain p-2">
-                            </div>
+
+                            <!-- Gallery Images -->
+                        @foreach($product->images as $image)
+                                <div class="swiper-slide grid place-items-center bg-slate-50 overflow-hidden w-full h-full group cursor-zoom-in">
+                                    <img src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}"
+                                         alt="{{ $product->title ?? 'Product Image' }}"
+                                         class="w-full h-full object-contain transition-transform duration-500 ease-in-out group-hover:scale-110">
+                                </div>
                             @endforeach
                         </div>
+                        <!-- Navigation Buttons -->
                         <button class="gallery-prev absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full glass grid place-items-center"><i class="fa-solid fa-angle-left"></i></button>
                         <button class="gallery-next absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full glass grid place-items-center"><i class="fa-solid fa-angle-right"></i></button>
                     </div>
+
+                    <!-- Thumbnails Slider (mt-3) -->
                     <div class="swiper gallery-thumbs mt-3">
                         <div class="swiper-wrapper" id="thumbWrap">
-                            <div class="swiper-slide w-20 h-20 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer p-1">
-                                <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}" class="w-full h-full object-contain">
+                            <!-- Featured Image Thumb -->
+                            <div class="swiper-slide w-20 h-20 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer">
+                                <!-- 💡 object-fit-cover typo fixed to object-cover -->
+                                <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}"
+                                     class="w-full h-full object-cover">
                             </div>
+                            <!-- Gallery Images Thumbs -->
                             @foreach($product->images as $image)
-                                <div class="swiper-slide w-20 h-20 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer p-1">
-                                    <img src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}" class="w-full h-full object-contain">
+                                <div class="swiper-slide w-20 h-20 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer">
+                                    <img src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}"
+                                         class="w-full h-full object-cover">
                                 </div>
                             @endforeach
                         </div>
@@ -51,14 +67,14 @@
                         @endfor
                     </span>
                     <span class="text-slate-500">{{ number_format($product->reviews_avg_rating ?? 4.8, 1) }} · {{ $product->reviews_count ?? '2,840' }} reviews</span>
-                    <span class="text-success font-semibold"><i class="fa-solid fa-circle-check"></i> Verified tested</span>
+                    <span class="text-success font-semibold"><i class="fa-solid fa-circle-check"></i> Verified</span>
                 </div>
 
                 <p class="text-slate-600 mt-4">
                     {{ $product->short_description ?? "" }}
                 </p>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6" id="scoreGrid">
+                {{--<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6" id="scoreGrid">
                     @foreach($product->specifications as $spec)
                     <div class="card-premium py-3 px-2 text-center">
                         <div class="text-xs text-slate-400 font-bold uppercase">{{$spec->spec_name}}</div>
@@ -67,7 +83,7 @@
                         </div>
                     </div>
                     @endforeach
-                </div>
+                </div>--}}
 
                 <div class="card-premium p-5 mt-6">
                     <div class="flex items-end gap-3">
@@ -111,16 +127,16 @@
 
                 <div class="grid sm:grid-cols-2 gap-6" data-aos="fade-up">
                     <div class="card-premium p-6">
-                        <h3 class="font-bold text-success mb-4"><i class="fa-solid fa-thumbs-up me-2"></i>Pros</h3>
-                        <ul class="list-none p-0 space-y-3" id="prosList">
+                        <h3 class="font-bold text-success mb-4"><i class="fa-solid fa-thumbs-up me-2"></i>Pros (Good Points)</h3>
+                        <ul class="list-none p-0 space-y-3" id="prosList" align="justify">
                             {!! $product->pros !!}
                             {{--<li class="text-slate-600 text-sm"><i class="fa-solid fa-check text-success me-2"></i> Exceptional ANC for the price segment</li>
                             <li class="text-slate-600 text-sm"><i class="fa-solid fa-check text-success me-2"></i> Comfortable fit for long listening sessions</li>--}}
                         </ul>
                     </div>
                     <div class="card-premium p-6">
-                        <h3 class="font-bold text-red-500 mb-4"><i class="fa-solid fa-thumbs-down me-2"></i>Cons</h3>
-                        <ul class="list-none p-0 space-y-3" id="consList">
+                        <h3 class="font-bold text-red-500 mb-4"><i class="fa-solid fa-thumbs-down me-2"></i>Cons (Bad Points)</h3>
+                        <ul class="list-none p-0 space-y-3" id="consList" align="justify">
                             {!! $product->cons !!}
                             {{--<li class="text-slate-600 text-sm"><i class="fa-solid fa-xmark text-danger me-2"></i> Companion app UI can feel cluttered</li>
                             <li class="text-slate-600 text-sm"><i class="fa-solid fa-xmark text-danger me-2"></i> Case lacks wireless charging</li>--}}
@@ -149,19 +165,9 @@
 
                     <div class="divide-y divide-slate-100 space-y-3" id="reviewList">
                         {{-- কন্ট্রোলার থেকে পিজিনেট করা প্রথম ২টা রিভিউ এখানে লুপ হবে --}}
-                        @forelse($reviews ?? [] as $rev)
+                        @foreach($reviews ?? [] as $rev)
                             @include('frontEnd.product.single_review', ['rev' => $rev])
-                        @empty
-                            <div class="review-item pb-1">
-                                <div class="flex justify-between items-center gap-2">
-                                    <span class="font-bold text-slate-800 text-sm">Sarah Jenkins</span>
-                                    <span class="text-amber-400 text-[10px] flex gap-0.5">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                    </span>
-                                </div>
-                                <p class="text-slate-500 text-xs md:text-sm italic mt-1 leading-relaxed">"Absolutely love these. The ANC rivals my much more expensive over-ear headphones."</p>
-                            </div>
-                        @endforelse
+                        @endforeach
                     </div>
 
                     {{-- ২ টার বেশি রিভিউ থাকলেই কেবল লোড মোর বাটন আসবে --}}
@@ -199,8 +205,15 @@
                         <h3 class="font-bold mb-3">Best Deal Today</h3>
                         <div class="text-3xl font-extrabold text-slate-900">{{ format_price($product->sale_price) ?? '' }} <span class="text-slate-400 line-through text-lg">{{ format_price($product->regular_price) ?? '' }}</span></div>
                         <div class="mt-2 text-sm text-slate-500" data-countdown>Deal ends in <strong><span data-h>00</span>h <span data-m>00</span>m <span data-s>00</span>s</strong></div>
-                        <a href="{{ $product->affiliate_url ?? '#' }}" target="_blank" class="btn-grad w-full text-center mt-4 no-underline block">Get This Deal</a>
-                        <div class="mt-3 glass rounded-xl p-3 text-center text-sm">Coupon: <strong>{{ $product->coupon ?? 'EXAMPLE9' }}</strong></div>
+                        <a href="{{ $product->affiliate_url ?? '#' }}"
+                           target="_blank"
+                           rel="noopener noreferrer nofollow"
+                           data-product-id="{{ $product->id ?? '' }}"
+                           class="btn-grad w-full text-center mt-4 no-underline block">
+                            Get This Deal
+                        </a>
+                        <div class="mt-3 glass rounded-xl p-3 text-center text-sm">Coupon: <strong>{{ $product->coupon ?? 'Not Available' }}</strong></div>
+
                     </div>
                     {{--<div class="card-premium p-6" data-aos="fade-left">
                         <h3 class="font-bold mb-2">Editor's Verdict</h3>

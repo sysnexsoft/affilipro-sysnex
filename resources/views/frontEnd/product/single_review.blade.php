@@ -13,7 +13,7 @@
         </span>
     </div>
 
-    <p class="text-slate-600 text-xs md:text-sm italic mt-1 leading-relaxed">"{{ $rev->review }}"</p>
+    <p class="text-slate-600 text-xs md:text-sm mt-1 leading-relaxed">"{{ $rev->review }}"</p>
 
     <span class="text-[10px] text-slate-400 block mt-1 font-medium">
         <i class="fa-regular fa-clock me-1 text-[9px]"></i>{{ $rev->created_at->diffForHumans() }}

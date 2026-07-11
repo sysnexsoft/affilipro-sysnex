@@ -43,7 +43,7 @@ class Category extends Model
 
     public function products()
     {
-        return Product::whereJsonContains('category_ids', (string)$this->id)->where('status', '1');
+        return Product::whereJsonContains('category_ids', (string)$this->id)->where('status', 1)->latest()->get();
     }
 
     public function getProductsCountAttribute()

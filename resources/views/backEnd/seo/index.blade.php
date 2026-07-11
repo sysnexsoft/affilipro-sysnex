@@ -85,21 +85,24 @@
                     <i class="ri-file-search-line"></i> Page-Specific Meta & Schema Architecture
                 </div>
                 <div class="card-body p-0">
+                    {{-- ১. table ট্যাগে table-fixed ক্লাস যুক্ত করা হয়েছে --}}
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 table-fixed w-100">
                             <thead class="table-light">
                             <tr>
-                                <th class="ps-4">Page Target</th>
-                                <th>Slug Mapping</th>
-                                <th>Index Target</th>
-                                <th class="text-center pe-4">Action</th>
+                                {{-- ২. কলামগুলোর উইডথ নির্দিষ্ট করে দেওয়া হয়েছে যেন টেক্সট ভাঙার জায়গা পায় --}}
+                                <th class="ps-4" style="width: 40%;">Page Target</th>
+                                <th style="width: 30%;">Slug Mapping</th>
+                                <th style="width: 15%;">Index Target</th>
+                                <th class="text-center pe-4" style="width: 15%;">Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($pages as $page)
                                 <tr>
                                     <td class="ps-4">
-                                        <div class="fw-bold text-dark">
+                                        {{-- ৩. text-wrap এবং d-block ক্লাস একসাথে দেওয়া হয়েছে --}}
+                                        <div class="fw-bold text-dark text-wrap">
                                             {{ $page->page_name }}
                                             @if($page->model_type)
                                                 <span class="badge bg-info-subtle text-info sm-badge" style="font-size: 10px;">Dynamic</span>
@@ -107,22 +110,25 @@
                                                 <span class="badge bg-secondary-subtle text-secondary sm-badge" style="font-size: 10px;">Static</span>
                                             @endif
                                         </div>
-                                        <small class="text-muted text-truncate d-block" style="max-width: 250px;">
+                                        {{-- এখানে d-block এর সাথে text-wrap দেওয়া হয়েছে এবং max-width বাদ দেওয়া হয়েছে --}}
+                                        <small class="text-muted text-wrap d-block">
                                             {{ $page->meta_title ?? 'Title not set yet' }}
                                         </small>
                                     </td>
-                                    <td>
-                                            <span class="badge bg-light text-dark font-monospace">
-                                                /{{ $page->page_slug ?? $page->seoable?->slug ?? 'dynamic-route' }}
-                                            </span>
+                                    {{-- ৪. এখানেও text-wrap এবং সেলের ভেতরের স্প্যানকে ব্রেক করার বুটস্ট্র্যাপ ক্লাস দেওয়া হয়েছে --}}
+                                    <td class="text-wrap">
+                                        <span class="badge bg-light text-dark font-monospace text-wrap d-inline-block text-start" style="max-width: 100%; word-break: break-all;">
+                                            /{{ $page->page_slug ?? $page->seoable?->slug ?? 'dynamic-route' }}
+                                        </span>
                                     </td>
                                     <td>
-                                            <span class="badge {{ $page->meta_robots == 'index, follow' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
-                                                {{ $page->meta_robots }}
-                                            </span>
+                                        {{-- ৫. ইনডেক্স টার্গেটের ব্যাজটিকেও সেফটি হিসেবে র‍্যাপ করা হয়েছে --}}
+                                        <span class="badge text-wrap {{ $page->meta_robots == 'index, follow' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
+                                            {{ $page->meta_robots }}
+                                        </span>
                                     </td>
                                     <td class="text-center pe-4">
-                                        <a href="{{ route('admin.seo.edit_page', $page->id) }}" class="btn btn-sm btn-primary rounded-2 px-3 fw-semibold">
+                                        <a href="{{ route('admin.seo.edit_page', $page->id) }}" class="btn btn-sm btn-primary rounded-2 px-3 fw-semibold text-nowrap">
                                             <i class="ri-edit-line"></i> Tune SEO
                                         </a>
                                     </td>

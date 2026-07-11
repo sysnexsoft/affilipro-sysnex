@@ -4,7 +4,7 @@
 
 @section('body')
     <section class="bg-hero pt-12 pb-12">
-        <div class="container-x">
+        <div class="container-xxl ">
             <nav class="crumb text-sm mb-4" data-aos="fade-up">
                 <a href="{{ route('home') }}">Home</a>
                 <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i>
@@ -30,7 +30,7 @@
 
     <!-- ব্লগ গ্রিড -->
     <section class="py-12">
-        <div class="container-x grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="container-xxl  grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($blogs as $blog)
                 @include('frontEnd.component.blogCard',['blog' => $blog])
             @endforeach

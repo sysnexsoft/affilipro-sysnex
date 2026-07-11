@@ -3,7 +3,7 @@
 @section('body')
     <!-- প্রিমিয়াম হিরো সেকশন - মোবাইলের জন্য প্যাডিং কমানো হয়েছে -->
     <section class="bg-gradient-to-b from-slate-50 to-slate-100/50 pt-6 pb-6 md:pt-16 md:pb-16 border-b border-slate-200/60">
-        <div class="container-x px-3 md:px-4">
+        <div class="container-xxl  px-3 md:px-4">
             <!-- ব্রেডক্রাম্ব - মোবাইলের জন্য মার্জিন কমানো হয়েছে -->
             <nav class="crumb text-xs md:text-sm mb-3 md:mb-5" data-aos="fade-up">
                 <a href="{{route('home')}}" class="text-slate-400 hover:text-primary transition no-underline">Home</a>
@@ -28,7 +28,7 @@
 
     <!-- টেবিল সেকশন - মোবাইলের প্যাডিং py-16 থেকে কমিয়ে py-4 করা হয়েছে -->
     <section class="py-4 md:py-16 bg-white">
-        <div class="container-x px-2 md:px-4">
+        <div class="container-xxl  px-2 md:px-4">
             {{-- টেবিল কন্টেইনার - AJAX শ্যাডো এবং বর্ডার মোবাইলের জন্য কম্প্যাক্ট করা হয়েছে --}}
             <div class="overflow-x-auto card-premium shadow-md md:shadow-xl rounded-xl md:rounded-2xl border border-slate-100" id="compareTableContainer" data-aos="fade-up">
                 @include('frontEnd.compare.compare_table')

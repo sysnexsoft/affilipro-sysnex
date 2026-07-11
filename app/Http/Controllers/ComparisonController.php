@@ -38,7 +38,7 @@ class ComparisonController extends Controller
         return view('frontEnd.compare.index', compact('products', 'comparisonFields'));
     }
 
-// টেবিলের HTML এবং কাউন্ট জেনারেট করার জন্য ফিক্সড হেল্পার মেথড
+    // টেবিলের HTML এবং কাউন্ট জেনারেট করার জন্য ফিক্সড হেল্পার মেথড
     private function getCompareData()
     {
         $productIds = session()->get('compare_products', []);
@@ -84,7 +84,7 @@ class ComparisonController extends Controller
         ];
     }
 
-// সেশনে প্রোডাক্ট যোগ করা (AJAX) - ৩টি প্রোডাক্টের কন্ডিশন ফিক্সড
+    // সেশনে প্রোডাক্ট যোগ করা (AJAX) - ৩টি প্রোডাক্টের কন্ডিশন ফিক্সড
     public function add($id)
     {
         $compareList = session()->get('compare_products', []);

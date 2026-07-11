@@ -39,7 +39,25 @@ class BrandController extends Controller
         $brand->save();
         return back()->with('success', 'brand Created Successfully');
     }
-
+    public function quickStore(Request $request)
+    {
+        $exists = \App\Models\Brand::where('name', $request->name)->orWhere('slug', $request->slug)->first();
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This Brand Name or Slug already exists!'
+            ]);
+        }
+        $brand = new \App\Models\Brand();
+        $brand->name = $request->name;
+        $brand->slug = $request->slug;
+        $brand->status = 1;
+        $brand->save();
+        return response()->json([
+            'success' => true,
+            'data' => $brand
+        ]);
+    }
     public function update(Request $request, $id)
     {
         $request->validate([

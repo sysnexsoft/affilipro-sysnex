@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@yield('title') — {{env('APP_NAME')}}</title>
+    <title>{{ $seo->meta_title ?? '' }} — {{env('APP_NAME')}}</title>
 
     <meta name="title" content="{{ $seo->meta_title ?? '' }}">
     <meta name="description" content="{{ $seo->meta_description ?? '' }}">
@@ -117,6 +117,7 @@
             box-sizing: border-box !important;
         }
     </style>
+
 </head>
 <body>
 <div class="read-progress"></div>
@@ -125,7 +126,7 @@
 <!-- ===================== HERO ===================== -->
 @include('frontEnd.layout.header')
 
-@yield('body')
+    @yield('body')
 
 @include('frontEnd.layout.footer')
 
@@ -144,14 +145,57 @@
         <span class="w-16 h-16 rounded-2xl bg-gradient-primary grid place-items-center text-white text-3xl mx-auto"><i class="fa-solid fa-gift"></i></span>
         <h3 class="font-display text-2xl font-extrabold mt-5">Wait! Grab your free deals guide</h3>
         <p class="text-slate-500 mt-2">Get our 2025 "Best Value Buys" PDF + exclusive coupons sent instantly.</p>
-        <form data-form class="mt-5 space-y-3">
-            <input type="email" required placeholder="Enter your email" class="w-full rounded-full border border-slate-200 px-5 py-3 outline-none focus:border-primary" />
-            <button class="btn-grad w-full">Send me the deals</button>
+
+        <form id="subscriberForm" class="mt-5 space-y-3">
+            @csrf <input type="email" name="email" required placeholder="Enter your email" class="w-full rounded-full border border-slate-200 px-5 py-3 outline-none focus:border-primary" />
+            <button type="submit" class="btn-grad w-full">Send me the deals</button>
         </form>
+
         <button data-exit-close class="text-slate-400 text-sm mt-3 bg-transparent border-0">No thanks, I'll pay full price</button>
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('subscriberForm');
+        const popup = document.getElementById('exitPopup');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = form.querySelector('button[type="submit"]');
+            const formData = new FormData(form);
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            try {
+                const response = await fetch("{{ route('subscribe.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert(data.message);
+                    form.reset();
+                    popup.style.display = 'none';
+                } else {
+                    // লারাভেলের ভ্যালিডেশন এররগুলো দেখানোর জন্য
+                    alert(data.message || 'ভুল কিছু ঘটেছে। আবার চেষ্টা করুন।');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('সার্ভারে সমস্যা হয়েছে। দয়া করে পরে চেষ্টা করুন।');
+            } finally {
+                // বাটন আগের অবস্থায় ফিরিয়ে আনা
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send me the deals';
+            }
+        });
+    });
+</script>
 <!-- Scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

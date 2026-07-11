@@ -18,8 +18,11 @@ return new class extends Migration
             $table->longText('description');
             $table->string('thumbnail')->nullable();
             $table->foreignId('category_id')->nullable();
+            $table->json('product_ids')->nullable();
             $table->integer('views')->default(0);
             $table->boolean('featured')->default(false);
+            $table->string('affiliate_url')->nullable();
+            $table->string('affiliate_source')->nullable();
             $table->boolean('status')->default(true);
 
             // SEO
@@ -27,6 +30,10 @@ return new class extends Migration
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
             $table->string('canonical_url')->nullable();
+
+            $table->text('search_keywords')->nullable();
+            $table->fullText('search_keywords');
+
             $table->timestamps();
         });
     }

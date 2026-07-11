@@ -18,27 +18,47 @@ class ComparisonFieldController extends Controller
 
     public function store(Request $request)
     {
+        // 💡 names array and specific item validation rule check pattern setup
         $request->validate([
-            'name' => 'required|string|max:255|unique:comparison_fields,name',
+            'names' => 'required|array|min:1',
+            'names.*' => 'required|string|max:255',
             'category_ids' => 'nullable|array'
         ]);
 
-        $field = ComparisonField::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-        ]);
+        // Track sequential save elements or warnings flags checks
+        $savedCount = 0;
 
-        // ক্যাটাগরি সিলেক্ট করা থাকলে পিভট টেবিলে সিঙ্ক (Sync) হবে
-        if ($request->has('category_ids')) {
-            $field->categories()->sync($request->category_ids);
+        foreach ($request->names as $nameItem) {
+            $cleanName = trim($nameItem);
+            $slug = Str::slug($cleanName);
+
+            // System safety validation parameters to prevent matching duplicates validation error crash rule:
+            // Already dynamically entry processing exist checking logic configuration mapping
+            $field = ComparisonField::where('slug', $slug)->first();
+
+            if (!$field) {
+                $field = ComparisonField::create([
+                    'name' => $cleanName,
+                    'slug' => $slug,
+                ]);
+                $savedCount++;
+            }
+
+            // Catch relation mapping category binding sync attachments multi rows array
+            if ($request->has('category_ids') && !empty($request->category_ids)) {
+                // syncWithoutDetaching true use kora safe jate repeated data check overlap items drop track na hoy
+                $field->categories()->syncWithoutDetaching($request->category_ids);
+            }
         }
 
-        return redirect()->back()->with('success', 'Comparison field created and mapped successfully!');
+        return redirect()->back()->with('success', $savedCount . ' Comparison fields updated and mapped successfully inside loop logic context matrix layer!');
     }
 
     public function update(Request $request, $id)
     {
+        // Update logic system single data change format rules preserve runtime matching validation logic:
         $field = ComparisonField::findOrFail($id);
+
         $request->validate([
             'name' => 'required|string|max:255|unique:comparison_fields,name,' . $field->id,
             'category_ids' => 'nullable|array'
@@ -51,7 +71,7 @@ class ComparisonFieldController extends Controller
 
         $field->categories()->sync($request->category_ids ?? []);
 
-        return redirect()->back()->with('success', 'Field updated successfully!');
+        return redirect()->back()->with('success', 'Field modified and sync schema saved successfully!');
     }
 
     public function destroy($id)

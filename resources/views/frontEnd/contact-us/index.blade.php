@@ -2,14 +2,14 @@
 @section('title','')
 @section('body')
     <section class="bg-hero pt-12 pb-12">
-        <div class="container-x">
+        <div class="container-xxl ">
             <nav class="crumb text-sm mb-4"><a href="{{route('home')}}">Home</a> <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i> <span class="text-slate-700 font-semibold">Contact</span></nav>
             <h1 class="font-display text-4xl md:text-5xl font-extrabold" data-aos="fade-up">Get in touch</h1>
             <p class="text-slate-600 mt-3 max-w-xl" data-aos="fade-up">Questions, suggestions or partnership ideas? We'd love to hear from you.</p>
         </div>
     </section>
     <section class="py-12">
-        <div class="container-x grid lg:grid-cols-3 gap-8">
+        <div class="container-xxl  grid lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 space-y-4" data-aos="fade-right">
                 <div class="card-premium p-6 flex gap-4"><span class="w-12 h-12 rounded-xl bg-blue-50 text-primary grid place-items-center text-xl"><i class="fa-solid fa-envelope"></i></span><div><div class="font-bold">Email</div><p class="text-slate-500 m-0">hello@affilipro.com</p></div></div>
                 <div class="card-premium p-6 flex gap-4"><span class="w-12 h-12 rounded-xl bg-blue-50 text-primary grid place-items-center text-xl"><i class="fa-solid fa-headset"></i></span><div><div class="font-bold">Support</div><p class="text-slate-500 m-0">Mon–Fri, 9am–6pm</p></div></div>

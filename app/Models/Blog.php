@@ -11,9 +11,11 @@ class Blog extends Model
     protected $fillable = [
         'title', 'slug', 'description', 'thumbnail', 'category_id',
         'views', 'featured', 'status', 'meta_title', 'meta_description',
-        'meta_keywords', 'canonical_url'
+        'meta_keywords', 'canonical_url','product_ids','affiliate_url','affiliate_source'
     ];
-
+    protected $casts = [
+        'product_ids' => 'array',
+    ];
     // প্রতিটি ব্লগ একটি ক্যাটাগরির সাথে যুক্ত
     public function category()
     {

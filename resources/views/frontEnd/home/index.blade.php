@@ -1,10 +1,10 @@
 @extends('frontEnd.layout.app')
 @section('title','Home')
 @section('body')
-    <section class="relative overflow-hidden bg-hero pt-16 pb-24">
+    <section class="relative bg-hero pt-16 pb-24">
         <div class="blob bg-secondary w-72 h-72 -top-10 -left-10"></div>
         <div class="blob bg-accent w-80 h-80 top-20 right-0"></div>
-        <div class="container-x relative z-10">
+        <div class="container-xxl relative z-40">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div data-aos="fade-right">
                     <span class="eyebrow"><i class="fa-solid fa-shield-halved me-1"></i> Trusted by 2.4M+ smart shoppers</span>
@@ -15,12 +15,31 @@
                         We independently test, score and compare thousands of products so you never overpay or pick the wrong one again.
                     </p>
 
-                    <form action="#" method="GET" class="mt-7 glass rounded-2xl p-2 flex items-center shadow-soft max-w-xl">
-                        <i class="fa-solid fa-magnifying-glass text-slate-400 px-3"></i>
-                        <input type="text" name="search" placeholder="Search 5,000+ reviews — e.g. 'best wireless earbuds'" class="flex-1 bg-transparent border-0 outline-none py-2 text-slate-700" />
-                        <button type="submit" class="btn-grad text-sm">Search</button>
-                    </form>
-                    <p data-form-note class="hidden text-success text-sm mt-2"><i class="fa-solid fa-check"></i> Showing top matches for your search.</p>
+                    <div class="relative w-full max-w-xl z-[60]">
+                        <form id="search-form" action="{{ route('live.search') }}" method="GET" class="mt-7 glass rounded-2xl p-2 flex items-center shadow-soft w-full mb-0">
+                    <span class="px-3 flex items-center">
+                        <svg style="width: 1.1rem; height: 1.1rem; fill: #94a3b8;" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
+                        </svg>
+                    </span>
+
+                            <input type="text"
+                                   id="global-live-search"
+                                   name="search"
+                                   placeholder="Search 5,000+ reviews — e.g. 'best wireless earbuds'"
+                                   class="flex-1 bg-transparent border-0 outline-none py-2 text-slate-700 text-base"
+                                   autocomplete="off" />
+
+                            <button type="submit" class="btn-grad text-sm cursor-pointer">Search</button>
+                        </form>
+
+                        <div id="search-results-dropdown" class="hidden absolute top-full left-0 right-0 w-full bg-white shadow-2xl rounded-2xl mt-2 border border-slate-200 max-h-[500px] overflow-y-auto z-[9999]">
+                        </div>
+                    </div>
+
+                    <p id="form-note" class="hidden text-emerald-600 text-sm mt-2 font-medium">
+                        <i class="fa-solid fa-check mr-1"></i> Showing top matches for your search.
+                    </p>
 
                     <div class="flex flex-wrap items-center gap-6 mt-8">
                         <div><div class="text-2xl font-extrabold text-slate-900">5,000+</div><div class="text-sm text-slate-500">Reviews</div></div>
@@ -40,11 +59,10 @@
                                 <span class="stars text-sm text-amber-400">@for($i = 1; $i <= 5; $i++)
                                         <i class="fa-solid {{ $i <= round($topPick->reviews_avg_rating) ? 'fa-star' : 'fa-star-half-stroke' }}"></i>
                                     @endfor
-                                </span>
+                        </span>
                             </div>
                             <div class="">
-                            @if($topPick->featured_image)
-                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
+                                @if($topPick->featured_image)
                                     <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}">
                                         <img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain">
                                     </a>
@@ -53,40 +71,22 @@
                                 @endif
                             </div>
                             <h3 class="font-display font-bold text-lg mt-4">
-                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
                                 <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="">{{ $topPick->title }} </a>
                             </h3>
                             <p class="text-sm text-slate-500">{{ Str::limit($topPick->short_description, 60) }}</p>
                             <div class="flex items-center justify-between mt-4">
                                 <div><span class="text-2xl font-extrabold text-slate-900">{{ format_price($topPick->sale_price) }}</span></div>
-                                <!-- ইউআরএল-এ top_pick=1 প্যারামিটার পাঠানো হয়েছে -->
                                 <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
                             </div>
                         </div>
                     @endif
-                    {{--<div class="card-premium p-4 absolute -bottom-6 -left-4 w-48 hidden md:block" data-aos="zoom-in" data-aos-delay="300">
-                        <div class="flex items-center gap-2"><span class="w-9 h-9 rounded-full bg-success/15 grid place-items-center text-success"><i class="fa-solid fa-bolt"></i></span>
-                            <div><div class="text-xs text-slate-500">Saved this week</div><div class="font-bold text-slate-900">$182,400</div></div></div>
-                    </div>--}}
                 </div>
             </div>
-
-            {{--<div class="mt-16 overflow-hidden">
-                <p class="text-center text-sm text-slate-400 mb-5 uppercase tracking-widest">As featured & compared across</p>
-                <div class="swiper brand-swiper">
-                    <div class="swiper-wrapper items-center" id="brandWrap">
-                        <div class="swiper-slide text-center text-slate-400 font-bold">BBC NEWS</div>
-                        <div class="swiper-slide text-center text-slate-400 font-bold">FORBES</div>
-                        <div class="swiper-slide text-center text-slate-400 font-bold">TECHCRUNCH</div>
-                        <div class="swiper-slide text-center text-slate-400 font-bold">WIRED</div>
-                    </div>
-                </div>
-            </div>--}}
         </div>
     </section>
 
     <section class="py-20">
-        <div class="container-x">
+        <div class="container-xxl z-30">
             <div class="text-center max-w-2xl mx-auto" data-aos="fade-up">
                 <span class="eyebrow">Browse by need</span>
                 <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Top Categories</h2>
@@ -94,7 +94,7 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mt-12">
                 @foreach($categories as $cat)
-                    <a href="#" class="card-premium p-4 text-center no-underline block hover:scale-105 transition-all">
+                    <a href="{{ route('product', ['category' => $cat->slug]) }}" class="card-premium p-4 text-center no-underline block hover:scale-105 transition-all">
                         <div class="w-70 h-70 rounded-full grid place-items-center mx-auto text-xl mb-3">
                             <img class=" rounded-full" src="{{ asset($cat->image) }}" alt="">
                         </div>
@@ -106,13 +106,13 @@
     </section>
 
     <section class="py-16 bg-white">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="flex items-end justify-between flex-wrap gap-4" data-aos="fade-up">
                 <div>
                     <span class="eyebrow">Editor curated</span>
-                    <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Featured Products</h2>
+                    <h3 class="font-display text-3xl font-extrabold mt-4">Featured Products</h3>
                 </div>
-                <a href="{{route('product')}}" class="btn-grad  no-underline">View all <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                <a href="{{route('product')}}" class="btn-grad  btn btn-sm no-underline">View all <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
                 @foreach($featuredProducts as $product)
@@ -122,15 +122,45 @@
         </div>
     </section>
 
+    @foreach($categories as $category)
+        {{-- Jodi kono category te product na thake, tahole shei section ta render e hobe na --}}
+        @if($category->products()->count() > 0)
+            <section class="py-16 bg-white border-b border-gray-100">
+                <div class="container-xxl">
+
+                    {{-- Section Header: Category Name dynamically ashbe --}}
+                    <div class="flex items-end justify-between flex-wrap gap-4" data-aos="fade-up">
+                        <div>
+                            <span class="eyebrow">{{ $category->name }}</span>
+                        </div>
+                        {{-- Oi nirdishto category-r shob product dekhar link --}}
+                        <a href="{{ route('product', ['category' => $category->slug]) }}" class="btn-grad btn btn-sm no-underline">
+                            View all <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+
+                    {{-- Product Grid: Eikhane oi category-r product gulo alada bhabe loop hobe --}}
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+                        @foreach($category->products()->take(4) as $product) {{-- Proti section e max 4 ta product dekhabe --}}
+                        @include('frontEnd.component.productcard', ['product' => $product])
+                        @endforeach
+                    </div>
+
+                </div>
+            </section>
+        @endif
+    @endforeach
     <section class="py-16">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="rounded-3xl bg-gradient-primary text-white p-8 md:p-12 relative overflow-hidden" data-aos="zoom-in">
                 <div class="blob bg-white/30 w-72 h-72 -top-20 -right-10"></div>
                 <div class="grid lg:grid-cols-2 gap-8 items-center relative z-10">
                     <div>
                         <span class="badge-deal"><i class="fa-solid fa-fire me-1"></i> Flash Deal</span>
                         <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Trending Deal of the Day</h2>
-                        <p class="text-white/80 mt-3 max-w-md">Editor's #1 4K monitor with a 38% verified discount. Limited stock — coupon ends soon.</p>
+                        <p class="text-white/80 mt-3 max-w-md">Editor's #1 {{$trendingProduct->title}}.
+                            @if($trendingProduct->coupon) Limited stock — coupon ends soon. @endif
+                        </p>
                         <div class="flex gap-3 mt-6" data-countdown>
                             <div class="count-box text-center"><div class="text-2xl font-extrabold" data-d>00</div><div class="text-xs">Days</div></div>
                             <div class="count-box text-center"><div class="text-2xl font-extrabold" data-h>00</div><div class="text-xs">Hrs</div></div>
@@ -138,17 +168,42 @@
                             <div class="count-box text-center"><div class="text-2xl font-extrabold" data-s>00</div><div class="text-xs">Sec</div></div>
                         </div>
                         <div class="mt-6 flex items-center gap-3 flex-wrap">
-                            <a href="#" class="btn-accent no-underline">Grab the Deal</a>
+                            <a href="{{ $product->affiliate_url ?? '#' }}"
+                               target="_blank"
+                               rel="noopener noreferrer nofollow"
+                               data-product-id="{{ $product->id ?? '' }}"
+                               class="btn-accent {{$trendingProduct->coupon ? '' : 'w-full'}} text-center no-underline">
+                                Grab the Deal
+                            </a>
+                            @if($trendingProduct->coupon)
                             <span class="glass-dark px-4 py-2 rounded-full text-sm">Coupon: <strong>AFFILI38</strong></span>
+                            @endif
                         </div>
                     </div>
                     <div class="card-premium p-6 text-slate-900">
-                        <div class="rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 aspect-video grid place-items-center text-6xl text-accent"><i class="fa-solid fa-desktop"></i></div>
-                        <div class="flex items-center justify-between mt-4">
-                            <h3 class="font-bold">UltraView 32" 4K Monitor</h3>
-                            <span class="badge-editor">Editor's Choice</span>
+                        <div class="rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 aspect-video grid place-items-center text-6xl text-accent">
+                            <img src="{{ asset($trendingProduct->featured_image ?? 'frontEnd/assets/default.png') }}"
+                                 alt="{{ $trendingProduct->title }}"
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                         </div>
-                        <div class="mt-3 text-3xl font-extrabold">$399 <span class="text-slate-400 line-through text-lg">$649</span></div>
+                        <div class="flex items-center justify-between mt-4">
+                            <h3 class="font-bold">{{$trendingProduct->title}}</h3>
+                            <span class="badge-editor">{{ $trendingProduct->trending == 1 ? 'Trending' : ''}}</span>
+                        </div>
+                        <div class="mt-3 text-3xl font-extrabold">
+                            @if($trendingProduct->sale_price && $trendingProduct->regular_price)
+                                {!! format_price($trendingProduct->sale_price) !!}
+                                <span class="text-slate-400 line-through text-lg">
+                                    {!! format_price($trendingProduct->regular_price) !!}
+                                </span>
+                            @else
+                                <span class="product-price-display-fixed text-slate-900 font-extrabold" style="font-size: 1.25rem !important; display: inline-block !important;">
+                                    {!! format_price($trendingProduct->regular_price ?? $trendingProduct->sale_price) !!}
+                                </span>
+                            @endif
+
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,7 +211,7 @@
     </section>
 
     <section class="py-16 bg-white">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="text-center max-w-2xl mx-auto" data-aos="fade-up">
                 <span class="eyebrow">Data-backed</span>
                 <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Best Rated — Side by Side</h2>
@@ -201,37 +256,13 @@
     </section>
 
     <section class="py-20">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="text-center max-w-2xl mx-auto" data-aos="fade-up">
                 <span class="eyebrow">Loved by readers</span>
                 <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">What Our Community Says</h2>
             </div>
             <div class="swiper testimonial-swiper mt-12 pb-12">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
-                    <div class="swiper-slide card-premium p-6">
-                        <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
-                        <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
-                    </div>
                     <div class="swiper-slide card-premium p-6">
                         <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
                         <h5 class="font-bold mt-4 text-slate-900">- John Doe</h5>
@@ -243,7 +274,7 @@
     </section>
 
     <section class="py-16 bg-white">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="flex items-end justify-between flex-wrap gap-4" data-aos="fade-up">
                 <div><span class="eyebrow">Fresh off the bench</span><h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Latest Reviews & Articles</h2></div>
                 <a href="#" class="btn-grad no-underline">All posts <i class="fa-solid fa-arrow-right ms-1"></i></a>
@@ -268,7 +299,7 @@
     </section>
 
     <section class="py-12">
-        <div class="container-x grid grid-cols-2 md:grid-cols-4 gap-6" data-aos="fade-up" id="trustGrid">
+        <div class="container-xxl  grid grid-cols-2 md:grid-cols-4 gap-6" data-aos="fade-up" id="trustGrid">
             <div class="text-center p-4">
                 <i class="fa-solid fa-shield text-3xl text-primary mb-2"></i>
                 <h5 class="font-bold text-slate-900">100% Independent</h5>
@@ -289,7 +320,7 @@
     </section>
 
     <section class="py-16 bg-white">
-        <div class="container-x grid lg:grid-cols-2 gap-12 items-start">
+        <div class="container-xxl  grid lg:grid-cols-2 gap-12 items-start">
             <div data-aos="fade-right">
                 <span class="eyebrow">Good to know</span>
                 <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">Frequently Asked Questions</h2>
@@ -306,33 +337,13 @@
                     </button>
                     <div data-faq-body style="max-height:0;overflow:hidden;transition:max-height .35s ease"><p class="text-slate-500 pt-3 mb-0">We combine hands-on testing data with advanced sentiment analytics from verified buyers.</p></div>
                 </div>
-                <div class="card-premium p-4" data-faq>
-                    <button data-faq-btn class="w-full flex items-center justify-between text-left bg-transparent border-0 p-0">
-                        <span class="font-bold text-slate-900">How do you score products?</span>
-                        <i data-faq-icon class="fa-solid fa-plus text-primary transition-transform"></i>
-                    </button>
-                    <div data-faq-body style="max-height:0;overflow:hidden;transition:max-height .35s ease"><p class="text-slate-500 pt-3 mb-0">We combine hands-on testing data with advanced sentiment analytics from verified buyers.</p></div>
-                </div>
-                <div class="card-premium p-4" data-faq>
-                    <button data-faq-btn class="w-full flex items-center justify-between text-left bg-transparent border-0 p-0">
-                        <span class="font-bold text-slate-900">How do you score products?</span>
-                        <i data-faq-icon class="fa-solid fa-plus text-primary transition-transform"></i>
-                    </button>
-                    <div data-faq-body style="max-height:0;overflow:hidden;transition:max-height .35s ease"><p class="text-slate-500 pt-3 mb-0">We combine hands-on testing data with advanced sentiment analytics from verified buyers.</p></div>
-                </div>
-                <div class="card-premium p-4" data-faq>
-                    <button data-faq-btn class="w-full flex items-center justify-between text-left bg-transparent border-0 p-0">
-                        <span class="font-bold text-slate-900">How do you score products?</span>
-                        <i data-faq-icon class="fa-solid fa-plus text-primary transition-transform"></i>
-                    </button>
-                    <div data-faq-body style="max-height:0;overflow:hidden;transition:max-height .35s ease"><p class="text-slate-500 pt-3 mb-0">We combine hands-on testing data with advanced sentiment analytics from verified buyers.</p></div>
-                </div>
+
             </div>
         </div>
     </section>
 
     <section class="py-16">
-        <div class="container-x">
+        <div class="container-xxl ">
             <div class="rounded-3xl glass shadow-soft p-8 md:p-12 text-center relative overflow-hidden" data-aos="zoom-in">
                 <div class="blob bg-secondary w-64 h-64 -top-20 -left-10"></div>
                 <div class="relative z-10 max-w-2xl mx-auto">
@@ -347,4 +358,78 @@
             </div>
         </div>
     </section>
+@endsection
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('global-live-search');
+            const resultsDropdown = document.getElementById('search-results-dropdown');
+
+            searchInput.addEventListener('input', function () {
+                const query = this.value.trim();
+
+                // ইউজার ২ অক্ষরের কম টাইপ করলে ড্রপডাউন বন্ধ হয়ে যাবে
+                if (query.length < 2) {
+                    resultsDropdown.innerHTML = '';
+                    resultsDropdown.classList.add('hidden'); // ⚡ এখানে classList যোগ করা হয়েছে
+                    return;
+                }
+
+                // লারাভেল ব্যাকএন্ডে Fetch API দিয়ে রিকোয়েস্ট পাঠানো
+                fetch(`{{ route('live.search') }}?search=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '';
+
+                        // ১. যদি প্রোডাক্ট পাওয়া যায়
+                        if (data.products.length > 0) {
+                            html += `<div class="p-3 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b">Products</div>`;
+                            data.products.forEach(product => {
+                                let productUrl = `{{ url('product') }}/${product.slug}`;
+                                html += `
+                            <a href="${productUrl}" class="flex items-center gap-3 p-2.5 hover:bg-slate-50 no-underline text-slate-800 transition-colors border-b">
+                                <img src="${product.image_url}" alt="${product.title}" style="width: 45px; height: 45px; object-fit: contain;" class="rounded bg-light p-1">
+                                <div class="flex-1 overflow-hidden">
+                                    <div class="font-bold text-sm truncate">${product.title}</div>
+                                    <div class="text-xs text-emerald-600 font-extrabold">${product.formatted_price}</div>
+                                </div>
+                            </a>`;
+                            });
+                        }
+
+                        // ২. যদি ব্লগ পাওয়া যায়
+                        if (data.blogs.length > 0) {
+                            html += `<div class="p-3 bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b">Articles & Reviews</div>`;
+                            data.blogs.forEach(blog => {
+                                html += `
+                            <a href="${blog.route_url}" class="flex items-center gap-2 p-2.5 hover:bg-slate-50 no-underline text-slate-800 transition-colors border-b">
+                                <img src="${blog.image_url}" alt="${blog.title}" style="width: 45px; height: 45px; object-fit: contain;" class="rounded bg-light p-1">
+                                <div class="flex-1 overflow-hidden">
+                                    <div class="font-semibold text-sm truncate">${blog.title}</div>
+                                    ${blog.affiliate_source ? `<span class="inline-block bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 rounded mt-1">${blog.affiliate_source}</span>` : ''}
+                                </div>
+                            </a>`;
+                            });
+                        }
+
+                        // ৩. যদি কিছুই না পাওয়া যায়
+                        if (data.products.length === 0 && data.blogs.length === 0) {
+                            html = `<div class="p-4 text-center text-sm text-slate-400">❌ No results found for "${query}"</div>`;
+                        }
+
+                        // ড্রপডাউন শো করা
+                        resultsDropdown.innerHTML = html;
+                        resultsDropdown.classList.remove('hidden'); // hidden ক্লাস রিমুভ করা হলো
+                    })
+                    .catch(error => console.error('Error fetching search results:', error));
+            });
+
+            // ড্রপডাউনের বাইরে ক্লিক করলে বক্সটি বন্ধ হয়ে যাবে
+            document.addEventListener('click', function (e) {
+                if (!searchInput.contains(e.target) && !resultsDropdown.contains(e.target)) {
+                    resultsDropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 @endsection

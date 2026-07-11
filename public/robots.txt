@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow specific folders that search engines shouldn't crawl
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+
+# Your Dynamic Sitemap URL
+Sitemap: https://affiliproduct.com/sitemap.xml

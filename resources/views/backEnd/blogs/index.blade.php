@@ -33,7 +33,7 @@
                                     <span class="text-muted">No Image</span>
                                 @endif
                             </td>
-                            <td>{{ \Illuminate\Support\Str::limit($blog->title, 40) }}</td>
+                            <td><a target="_blank" href="{{route('blog.details',$blog->slug)}}">{{ \Illuminate\Support\Str::limit($blog->title, 40) }}</a></td>
                             <td><span class="badge bg-secondary">{{ $blog->category->name }}</span></td>
                             <td><i class="ri-eye-line"></i> {{ $blog->views }}</td>
                             <td><span class="badge {{ $blog->featured ? 'bg-warning text-dark' : 'bg-light text-muted' }}">{{ $blog->featured ? 'Yes' : 'No' }}</span></td>

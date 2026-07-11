@@ -13,7 +13,7 @@ class CategoryController extends Controller
     {
         $categories = Category::with('childrenRecursive')->whereNull('parent_id')->latest()->paginate(20);
         $allCategories = Category::with('childrenRecursive')->latest()->paginate(20);
-        return view('backend.category.index', compact('categories','allCategories'));
+        return view('backEnd.category.index', compact('categories','allCategories'));
     }
 
     public function store(Request $request)
@@ -49,7 +49,32 @@ class CategoryController extends Controller
             ->back()
             ->with('success', 'Category Added Successfully');
     }
+    public function quickStore(Request $request)
+    {
+        $exists = \App\Models\Category::where('name', $request->name)
+            ->orWhere('slug', $request->slug)
+            ->first();
 
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This Category Name or Slug already exists!'
+            ]);
+        }
+
+        // নতুন ক্যাটাগরি তৈরি
+        $category = new \App\Models\Category();
+        $category->name = $request->name;
+        $category->slug = $request->slug;
+        $category->parent_id = $request->parent_id ?: null;
+        $category->status = 1; // Default active
+        $category->save();
+
+        return response()->json([
+            'success' => true,
+            'data' => $category
+        ]);
+    }
     public function edit($id)
     {
         return Category::findOrFail($id);

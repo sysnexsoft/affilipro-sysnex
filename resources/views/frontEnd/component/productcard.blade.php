@@ -17,11 +17,22 @@
     </a>
 
     <div class="mt-4 border-t border-slate-100 pt-3">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-sm text-slate-500 font-medium">Price:</span>
-            <span class="text-lg font-extrabold text-slate-900">
-                {{ format_price($product->sale_price) }}
-            </span>
+        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-3">
+            <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Price:</span>
+            <div class="flex flex-col items-end sm:flex-row sm:items-center sm:gap-2 clear-both block">
+                @if($product->sale_price && $product->regular_price)
+                    <span class="product-price-display-fixed text-emerald-600 font-extrabold" style="font-size: 1.25rem !important; display: inline-block !important;">
+                        {!! format_price($product->sale_price) !!}
+                    </span>
+                    <span class="text-slate-400 font-medium line-through" style="font-size: 0.875rem !important; display: inline-block !important;">
+                        {!! format_price($product->regular_price) !!}
+                    </span>
+                @else
+                    <span class="product-price-display-fixed text-slate-900 font-extrabold" style="font-size: 1.25rem !important; display: inline-block !important;">
+            {!! format_price($product->regular_price ?? $product->sale_price) !!}
+        </span>
+                @endif
+            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">

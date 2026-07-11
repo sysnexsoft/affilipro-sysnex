@@ -5,16 +5,16 @@
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Edit Affiliate Product: {{ $product->title }}</h5>
-                        <a href="{{ route('admin.product.index') }}" class="btn btn-sm btn-light">Back to List</a>
+                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Affiliate Product: {{ $product->title }}</h5>
+                        <a href="{{ route('admin.product.index') }}" class="btn btn-sm btn-light fw-bold">Back to List</a>
                     </div>
                     <div class="card-body">
 
                         @if ($errors->any())
                             <div class="alert alert-danger">
-                                <ul>
+                                <ul class="mb-0">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
@@ -23,18 +23,27 @@
                         @endif
 
                         <form action="{{ route('admin.product.update', $product->id) }}" method="POST" enctype="multipart/form-data" id="productEditForm">
-                            @csrf
+                        @csrf
 
-                            <ul class="nav nav-tabs mb-4" id="productTab" role="tablist">
-                                <li class="nav-item"><button class="nav-link active text-primary" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button">General Info</button></li>
-                                <li class="nav-item"><button class="nav-link text-primary" id="affiliate-tab" data-bs-toggle="tab" data-bs-target="#affiliate" type="button">Pricing & Affiliate</button></li>
-                                <li class="nav-item"><button class="nav-link text-primary" id="dynamic-tab" data-bs-toggle="tab" data-bs-target="#dynamic" type="button">Specs & FAQs</button></li>
-                                <li class="nav-item"><button class="nav-link text-primary" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button">SEO & Flags</button></li>
+                        <!-- 💡 Nav-tabs styled as custom steps -->
+                            <ul class="nav nav-pills nav-justified mb-4 border p-2 rounded bg-light" id="productTab" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link active fw-bold step-nav-btn" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">1. General Info</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link fw-bold step-nav-btn" id="affiliate-tab" data-bs-toggle="tab" data-bs-target="#affiliate" type="button" role="tab">2. Pricing & Affiliate</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link fw-bold step-nav-btn" id="dynamic-tab" data-bs-toggle="tab" data-bs-target="#dynamic" type="button" role="tab">3. Specs & FAQs</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link fw-bold step-nav-btn" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button" role="tab">4. SEO & Flags</button>
+                                </li>
                             </ul>
 
-                            <div class="tab-content" id="productTabContent">
-
-                                <div class="tab-pane fade show active" id="general">
+                            <div class="tab-content border p-4 rounded bg-white" id="productTabContent" style="min-height: 400px;">
+                                <!-- STEP 1: GENERAL INFO -->
+                                <div class="tab-pane fade show active" id="general" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Product Title *</label>
@@ -44,33 +53,60 @@
                                             <label class="form-label fw-bold">Slug (Unique URL) *</label>
                                             <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $product->slug) }}" required>
                                         </div>
+
+                                        <!-- ⚡ Categories with Quick Add Button -->
                                         <div class="col-md-4">
                                             <label class="form-label fw-bold">Categories (Dynamic Field Load) *</label>
-                                            <select name="category_ids[]" id="category_select_id" class="form-control category-select" multiple required style="height: 100px;">
-                                                @php
-                                                    $selectedCategories = is_array($product->category_ids) ? $product->category_ids : json_decode($product->category_ids, true) ?? [];
-                                                @endphp
-                                                @foreach($categories as $category)
-                                                    <option value="{{ $category->id }}" {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
-                                                        {{ $category->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <small class="text-muted">Hold Ctrl to select multiple</small>
+                                            <div class="d-flex gap-1 align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <select name="category_ids[]" id="category_select_id" class="form-control category-select" multiple required style="width: 100%;">
+                                                        @php
+                                                            $selectedCategories = is_array($product->category_ids) ? $product->category_ids : json_decode($product->category_ids, true) ?? [];
+                                                        @endphp
+                                                        @foreach($categories as $category)
+                                                            <option value="{{ $category->id }}" {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
+                                                                {{ $category->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickAddCategory" title="Quick Add Category" style="height: 38px;">
+                                                    <i class="ri-add-fill"></i>
+                                                </button>
+                                            </div>
                                         </div>
+
+                                        <!-- ⚡ Brand with Quick Add Button -->
                                         <div class="col-md-4">
                                             <label class="form-label fw-bold">Brand</label>
-                                            <select name="brand_id" class="form-control">
-                                                <option value="">Select Brand</option>
-                                                @foreach($brands as $brand)
-                                                    <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div class="d-flex gap-1 align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <select name="brand_id" id="brand_select_id" class="form-control brand-select" style="width: 100%;">
+                                                        <option value="">Select Brand</option>
+                                                        @foreach($brands as $brand)
+                                                            <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickAddBrand" title="Quick Add Brand" style="height: 38px;">
+                                                    <i class="ri-add-fill"></i>
+                                                </button>
+                                            </div>
                                         </div>
+
+                                        <!-- ⚡ SKU Code with Auto Generate Button -->
                                         <div class="col-md-4">
                                             <label class="form-label fw-bold">SKU Code</label>
-                                            <input type="text" name="sku" class="form-control" value="{{ old('sku', $product->sku) }}">
+                                            <div class="d-flex gap-1 align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <input type="text" name="sku" id="sku_code" class="form-control" value="{{ old('sku', $product->sku) }}" placeholder="e.g., PROD-X89F2" autocomplete="off">
+                                                </div>
+                                                <button type="button" id="generate_sku_btn" class="btn btn-dark" title="Generate SKU" style="height: 38px;">
+                                                    <i class="fa-solid fa-rotate me-1"></i> Generate
+                                                </button>
+                                            </div>
                                         </div>
+
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Short Description</label>
                                             <textarea name="short_description" class="form-control" rows="3">{{ old('short_description', $product->short_description) }}</textarea>
@@ -88,9 +124,15 @@
                                             <textarea name="cons" class="form-control summernote" rows="4" placeholder="One point per line...">{{ old('cons', $product->cons) }}</textarea>
                                         </div>
                                     </div>
+
+                                    <!-- Step 1 Footer -->
+                                    <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                                        <button type="button" class="btn btn-primary next-step-btn px-4 fw-bold">Next Step <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                    </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="affiliate">
+                                <!-- STEP 2: PRICING & AFFILIATE -->
+                                <div class="tab-pane fade" id="affiliate" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-md-4">
                                             <label class="form-label fw-bold">Regular Price</label>
@@ -139,9 +181,16 @@
                                             @endif
                                         </div>
                                     </div>
+
+                                    <!-- Step 2 Footer -->
+                                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                        <button type="button" class="btn btn-secondary prev-step-btn px-4 fw-bold"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                        <button type="button" class="btn btn-primary next-step-btn px-4 fw-bold">Next Step <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                    </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="dynamic">
+                                <!-- STEP 3: SPECS & FAQS -->
+                                <div class="tab-pane fade" id="dynamic" role="tabpanel">
                                     <div class="row">
                                         <div class="col-md-6 border-end">
                                             <h5 class="fw-bold mb-3 text-secondary">Product Specifications</h5>
@@ -155,11 +204,10 @@
                                                             <input type="text" name="specs[{{ $index }}][value]" class="form-control form-control-sm" value="{{ $spec->spec_value }}" placeholder="Value" required>
                                                         </div>
                                                         <div class="col-2">
-                                                            <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="ri-delete-bin-line"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button>
                                                         </div>
                                                     </div>
                                                 @empty
-                                                    {{-- খালি থাকলে স্ক্রিপ্ট অটোমেটিক রেন্ডার করবে --}}
                                                     <div class="text-muted small p-2" id="no-cat-alert">No specs assigned. Change categories or click below to add manually.</div>
                                                 @endforelse
                                             </div>
@@ -186,9 +234,16 @@
                                             <button type="button" id="add-faq-btn" class="btn btn-sm btn-outline-primary mt-2">+ Add FAQ</button>
                                         </div>
                                     </div>
+
+                                    <!-- Step 3 Footer -->
+                                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                        <button type="button" class="btn btn-secondary prev-step-btn px-4 fw-bold"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                        <button type="button" class="btn btn-primary next-step-btn px-4 fw-bold">Next Step <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                    </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="seo">
+                                <!-- STEP 4: SEO & FLAGS -->
+                                <div class="tab-pane fade" id="seo" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-12 bg-light p-3 rounded mb-3">
                                             <h5 class="fw-bold text-muted mb-3">Product Visibility & Badges</h5>
@@ -225,13 +280,14 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Step 4 Footer (Final Update Button) -->
+                                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                        <button type="button" class="btn btn-secondary prev-step-btn px-4 fw-bold"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                        <button type="submit" class="btn btn-success px-5 fw-bold"><i class="fa-solid fa-cloud-arrow-up me-1"></i> Update Product</button>
+                                    </div>
                                 </div>
 
-                            </div>
-
-                            <hr class="my-4">
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary px-5">Update Product</button>
                             </div>
                         </form>
 
@@ -240,18 +296,147 @@
             </div>
         </div>
     </div>
-@endsection
+    <!-- Quick Add Category Modal -->
+    <div class="modal fade" id="quickAddCategory" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Quick Add Category</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="quickCategoryForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Category Name *</label>
+                            <input type="text" id="quick_cat_name" name="name" class="form-control" required autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Slug *</label>
+                            <input type="text" id="quick_cat_slug" name="slug" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Parent Category</label>
+                            <select name="parent_id" class="form-select">
+                                <option value="">Main Category</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="saveQuickCatBtn">Save Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <style>
+        /* input-group এর ভেতরে select2 থাকলে তার লেআউট ফিক্স */
+        .input-group > .select2-container--default {
+            flex: 1 1 auto;
+            width: 1% !important;
+        }
 
+        .input-group > .select2-container--default .select2-selection--single,
+        .input-group > .select2-container--default .select2-selection--multiple {
+            height: 32px !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+    </style>
+    <!-- Quick Add Brand Modal -->
+    <div class="modal fade" id="quickAddBrand" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Quick Add Brand</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="quickBrandForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Brand Name *</label>
+                            <input type="text" id="quick_brand_name" name="name" class="form-control" required autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Slug *</label>
+                            <input type="text" id="quick_brand_slug" name="slug" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="saveQuickBrandBtn">Save Brand</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
 @push('js')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 
     <script>
         $(document).ready(function() {
 
-            // 🔴 ১. ক্যাটাগরি চেঞ্জ হলে বা প্রথমবার রেন্ডার হলে Ajax দিয়ে ডাইনামিক ফিল্ড পুশ করার লজিক
+            // ==========================================
+            // 💡 WIZARD BACK / NEXT STEP ROUTING LOGIC
+            // ==========================================
+
+            // Next Step Button Click Logic
+            $('.next-step-btn').on('click', function() {
+                let currentTabPane = $(this).closest('.tab-pane');
+                let form = $('#productEditForm');
+
+                // শুধুমাত্র বর্তমান অ্যাক্টিভ ট্যাবের ইনপুটগুলোর ভ্যালিডেশন চেক হবে
+                let isValid = true;
+                currentTabPane.find('input, select, textarea').each(function() {
+                    if (!form.validate().element($(this))) {
+                        isValid = false;
+                    }
+                });
+
+                if (isValid) {
+                    let currentActiveIdx = $('#productTab .nav-link').index($('#productTab .nav-link.active'));
+                    if (currentActiveIdx < $('#productTab .nav-link').length - 1) {
+                        $('#productTab .nav-link').eq(currentActiveIdx + 1).tab('show');
+                        window.scrollTo(0, 0);
+                    }
+                }
+            });
+
+            // Previous (Back) Step Button Click Logic (Fix)
+            $('.prev-step-btn').on('click', function() {
+                let currentActiveIdx = $('#productTab .nav-link').index($('#productTab .nav-link.active'));
+                if (currentActiveIdx > 0) {
+                    $('#productTab .nav-link').eq(currentActiveIdx - 1).tab('show');
+                    window.scrollTo(0, 0);
+                }
+            });
+
+            // Prevent direct header tab clicks from bypassing validations
+            $('.step-nav-btn').on('click', function(e) {
+                let targetIdx = $('#productTab .nav-link').index($(this));
+                let activeIdx = $('#productTab .nav-link').index($('#productTab .nav-link.active'));
+
+                if (targetIdx > activeIdx) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // কারেন্ট পেজের নেক্সট বাটন ট্রিগার করে ভ্যালিডেশন রান করানো হবে
+                    $('#productTabContent .tab-pane.active').find('.next-step-btn').click();
+                    return false;
+                }
+            });
+
+
+            // ==========================================
+            // 🔴 DYNAMIC CATEGORY SPECIFICATIONS (AJAX)
+            // ==========================================
             let specIndex = {{ $product->specifications->count() > 0 ? $product->specifications->count() : 0 }};
 
-            // আমরা অলরেডি সেভ করা ইনপুটগুলোর নাম ট্র‍্যাক রাখব যেন ডুপ্লিকেট না হয়
             function getExistingSpecNames() {
                 let names = [];
                 $('#spec-container .spec-row input[name$="[name]"]').each(function() {
@@ -269,13 +454,11 @@
                         type: "GET",
                         data: { category_ids: categoryIds },
                         success: function(response) {
-                            // নো-অ্যালার্ট মেসেজ থাকলে ক্লিয়ার করব
                             $('#no-cat-alert').remove();
                             let existingNames = getExistingSpecNames();
 
                             if(response.length > 0) {
                                 $.each(response, function(index, field) {
-                                    // যদি ফিল্ডের নাম অলরেডি এডিট স্ক্রিনে থাকে, তবে নতুন করে রো তৈরি করব না
                                     if($.inArray(field.name.toLowerCase().trim(), existingNames) == -1) {
                                         let html = `
                                         <div class="row g-2 mb-2 spec-row">
@@ -286,7 +469,7 @@
                                                 <input type="text" name="specs[${specIndex}][value]" class="form-control form-control-sm" placeholder="Value for ${field.name}" required>
                                             </div>
                                             <div class="col-2">
-                                                <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="ri-delete-bin-line"></i></button>
+                                                <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button>
                                             </div>
                                         </div>`;
                                         $('#spec-container').append(html);
@@ -296,24 +479,29 @@
                             }
                         }
                     });
+                } else {
+                    $('#spec-container').html('<div class="text-muted small p-2" id="no-cat-alert">No specs assigned. Change categories or click below to add manually.</div>');
                 }
             });
 
-            // ২. ম্যানুয়ালি কাস্টম স্পেসিফিকেশন অ্যাড করার লজিক
+            // Manual Specification Addition
             $('#add-spec-btn').click(function() {
                 $('#no-cat-alert').remove();
 
                 let html = `
                 <div class="row g-2 mb-2 spec-row">
-                    <div class="col-5"><input type="text" name="specs[${specIndex}][name]" class="form-control form-control-sm" placeholder="Specification Name"></div>
-                    <div class="col-5"><input type="text" name="specs[${specIndex}][value]" class="form-control form-control-sm" placeholder="Value"></div>
-                    <div class="col-2"><button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="ri-delete-bin-line"></i></button></div>
+                    <div class="col-5"><input type="text" name="specs[${specIndex}][name]" class="form-control form-control-sm" placeholder="Specification Name" required></div>
+                    <div class="col-5"><input type="text" name="specs[${specIndex}][value]" class="form-control form-control-sm" placeholder="Value" required></div>
+                    <div class="col-2"><button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button></div>
                 </div>`;
                 $('#spec-container').append(html);
                 specIndex++;
             });
 
-            // ৩. FORM VALIDATION LOGIC
+
+            // ==========================================
+            // ⚙️ JQUERY VALIDATION & AUTO-SLUG LOGIC
+            // ==========================================
             $("#productEditForm").validate({
                 errorClass: "is-invalid",
                 validClass: "is-valid",
@@ -357,7 +545,7 @@
                 }
             });
 
-            // ৪. অটো স্লাগ জেনারেটর লজিক
+            // Slug Generator
             $('#title').on('keyup', function() {
                 let title = $(this).val();
                 let slug = title.toLowerCase()
@@ -368,7 +556,10 @@
                 $(this).valid();
             });
 
-            // ৫. ডাইনামিক এফএকিউ (FAQ) অ্যাড র লজিক
+
+            // ==========================================
+            // 💬 DYNAMIC FAQS & MISC PLUGINS
+            // ==========================================
             let faqIndex = {{ $product->faqs->count() > 0 ? $product->faqs->count() : 1 }};
             $('#add-faq-btn').click(function() {
                 let html = `
@@ -381,15 +572,15 @@
                 faqIndex++;
             });
 
-            // ৬. রিমুভ বাটন লজিক (specs & faqs উভয়ের জন্য)
+            // Row Removal Event Handler
             $(document).on('click', '.remove-row', function() {
                 $(this).closest('.spec-row, .faq-row').remove();
             });
 
-            // ৭. সামারনোট ইনিশিয়ালাইজেশন
+            // Summernote Editor
             if ($('.summernote').length > 0) {
                 $('.summernote').summernote({
-                    height: 300,
+                    height: 250,
                     placeholder: 'Write product description...',
                     toolbar: [
                         ['style', ['style']],
@@ -401,15 +592,22 @@
                 });
             }
 
-            // ৮. ক্যাটাগরি সিলেক্ট (Select2)
+            // Select2 Dynamic Initializer
             $('.category-select').select2({
                 placeholder: 'Search Categories',
                 width: '100%'
             }).on('change', function() {
                 $(this).valid();
             });
+            // Select2 Dynamic Initializer
+            $('.brand-select').select2({
+                placeholder: 'Search Brand',
+                width: '100%'
+            }).on('change', function() {
+                $(this).valid();
+            });
 
-            // ৯. ইমেজ প্রিভিউ লজিক
+            // Image Thumbnail Upload Preview
             $('.imageInput').on('change', function () {
                 let reader = new FileReader();
                 let preview = $('.previewImage');
@@ -422,7 +620,7 @@
         });
     </script>
 
-    <!-- ১০. গ্যালারি ইমেজ ডিলেট করার Ajax লজিক -->
+    <!-- 🗑️ GALLERY IMAGE ASYNC DELETION LOGIC -->
     <script>
         $(document).on('click', '.delete-gallery-img', function() {
             let imageId = $(this).data('id');
@@ -450,6 +648,148 @@
                     }
                 });
             }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            // Helper function to generate slug
+            function generateQuickSlug(text) {
+                return text.toLowerCase().trim()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/--+/g, '-');
+            }
+
+            // Auto slug for Quick Category & Brand
+            $('#quick_cat_name').on('keyup', function() {
+                $('#quick_cat_slug').val(generateQuickSlug($(this).val()));
+            });
+            $('#quick_brand_name').on('keyup', function() {
+                $('#quick_brand_slug').val(generateQuickSlug($(this).val()));
+            });
+
+            // ==========================================
+            // 📂 QUICK ADD CATEGORY AJAX
+            // ==========================================
+            $('#quickCategoryForm').on('submit', function(e) {
+                e.preventDefault();
+                let btn = $('#saveQuickCatBtn');
+                btn.prop('disabled', true).text('Saving...');
+
+                $.ajax({
+                    url: "{{ route('admin.category.quickStore') }}", // Create this route
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        btn.prop('disabled', false).text('Save Category');
+
+                        if (response.success) {
+                            // মেইন ফর্মে নতুন অপশন যুক্ত করা
+                            let newOption = new Option(response.data.name, response.data.id, true, true);
+                            $('#category_select_id').append(newOption).trigger('change');
+
+                            // মডাল রিসেট ও হাইড
+                            $('#quickCategoryForm')[0].reset();
+                            $('#quickAddCategory').modal('hide');
+
+                            // সাফল্য বার্তা
+                            if(typeof Swal !== 'undefined') {
+                                Swal.fire('Success', 'Category created and selected!', 'success');
+                            } else {
+                                alert('Category created and selected!');
+                            }
+                        } else {
+                            // এক্সিস্ট করলে বা অন্য কোন এরর মেসেজ আসলে
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).text('Save Category');
+                        if(xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            alert(errors.name ? errors.name[0] : 'Validation error occurred.');
+                        } else {
+                            alert('Something went wrong. Please try again.');
+                        }
+                    }
+                });
+            });
+
+            // ==========================================
+            // 🏷️ QUICK ADD BRAND AJAX
+            // ==========================================
+            $('#quickBrandForm').on('submit', function(e) {
+                e.preventDefault();
+                let btn = $('#saveQuickBrandBtn');
+                btn.prop('disabled', true).text('Saving...');
+
+                $.ajax({
+                    url: "{{ route('admin.brand.quickStore') }}", // Create this route
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        btn.prop('disabled', false).text('Save Brand');
+
+                        if (response.success) {
+                            // মেইন ফর্মে নতুন অপশন সেট করা
+                            let newOption = new Option(response.data.name, response.data.id, true, true);
+                            $('#brand_select_id').append(newOption).trigger('change');
+
+                            // মডাল রিসেট ও হাইড
+                            $('#quickBrandForm')[0].reset();
+                            $('#quickAddBrand').modal('hide');
+
+                            if(typeof Swal !== 'undefined') {
+                                Swal.fire('Success', 'Brand created and selected!', 'success');
+                            } else {
+                                alert('Brand created and selected!');
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).text('Save Brand');
+                        if(xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            alert(errors.name ? errors.name[0] : 'Validation error.');
+                        } else {
+                            alert('Something went wrong.');
+                        }
+                    }
+                });
+            });
+        });
+        $(document).ready(function() {
+
+            // ==========================================
+            // ⚡ PRODUCT NAME BASED SKU GENERATOR
+            // ==========================================
+            $('#generate_sku_btn').on('click', function() {
+                let productName = $('#title').val() || '';
+
+                if (productName.trim() === '') {
+                    alert('Please enter the Product Title first to generate SKU!');
+                    return;
+                }
+
+                // নাম থেকে স্পেস ও স্পেশাল ক্যারেক্টার বাদ দেওয়া
+                let cleanName = productName.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+                // নামের প্রথম ৪টি ক্যারেক্টার নেওয়া
+                let namePrefix = cleanName.substring(0, 4);
+
+                // ৪ ডিজিটের ইউনিক র‍্যান্ডম নাম্বার তৈরি
+                let randomNumber = Math.floor(1000 + Math.random() * 9000);
+
+                // ফাইনাল SKU তৈরি (যেমন: SMAR-4852)
+                let generatedSku = namePrefix + '-' + randomNumber;
+
+                // ইনপুটে ভ্যালু বসানো
+                $('#sku_code').val(generatedSku);
+            });
         });
     </script>
 @endpush
