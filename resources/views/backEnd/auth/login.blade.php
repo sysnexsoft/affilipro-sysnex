@@ -2,27 +2,20 @@
 <html lang="en">
 
 <head>
-    <!-- Title Meta -->
     <meta charset="utf-8" />
-    <title>{{ env('App_name')}} | </title>
+    <title>{{ env('APP_NAME', 'Affili Product') }} | Admin Sign In</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A fully responsive premium admin dashboard template, Real Estate Management Admin Template" />
-    <meta name="author" content="Techzaa" />
+    <meta name="description" content="Secure Admin Login Portal for Affili Product Management Panel." />
+    <meta name="author" content="{{ env('APP_NAME', 'Affili Product') }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="robots" content="noindex, nofollow" /> <link rel="shortcut icon" href="{{asset('/')}}Backend/assets/images/favicon.ico">
 
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('/')}}Backend/assets/images/favicon.ico">
-
-    <!-- Vendor css (Require in all Page) -->
     <link href="{{asset('/')}}Backend/assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Icons css (Require in all Page) -->
     <link href="{{asset('/')}}Backend/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- App css (Require in all Page) -->
     <link href="{{asset('/')}}Backend/assets/css/app.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Theme Config js (Require in all Page) -->
     <script src="{{asset('/')}}Backend/assets/js/config.min.js"></script>
 
 </head>
@@ -56,7 +49,6 @@
                                     <input type="email" required id="example-email" name="email" class="form-control bg-light bg-opacity-50 border-light py-2" placeholder="Enter your email">
                                 </div>
                                 <div class="mb-3">
-{{--                                    <a href="" class="float-end text-muted text-unline-dashed ms-1">Reset password</a>--}}
                                     <label class="form-label" for="example-password">Password <span class="text-danger">*</span></label>
                                     <input type="password" required id="example-password" name="password" class="form-control bg-light bg-opacity-50 border-light py-2" placeholder="Enter your password">
                                 </div>
@@ -71,28 +63,12 @@
                                     <button class="btn btn-danger py-2 fw-medium" type="submit">Sign In</button>
                                 </div>
                             </form>
-
-                            {{--<p class="mt-3 fw-semibold no-span">OR sign with</p>
-
-                            <div class="text-center">
-                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='bx bxl-google fs-20'></i></a>
-                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='ri-facebook-fill fs-20'></i></a>
-                                <a href="javascript:void(0);" class="btn btn-outline-light shadow-none"><i class='bx bxl-github fs-20'></i></a>
-                            </div>--}}
-                        </div> <!-- end col -->
-                    </div> <!-- end card-body -->
-                </div> <!-- end card -->
-
-            </div> <!-- end col -->
-        </div> <!-- end row -->
-    </div>
+                        </div> </div> </div> </div> </div> </div>
 </div>
 
-<!-- Vendor Javascript (Require in all Page) -->
 <script src="{{asset('/')}}Backend/assets/js/jquery.min.js"></script>
 <script src="{{asset('/')}}Backend/assets/js/vendor.js"></script>
 
-<!-- App Javascript (Require in all Page) -->
 <script src="{{asset('/')}}Backend/assets/js/app.js"></script>
 <script src="{{asset('/')}}Backend/assets/js/sweetalert.js"></script>
 <script>
@@ -139,7 +115,4 @@
 @endif
 
 </body>
-
-
-<!-- Mirrored from techzaa.in/lahomes/admin/auth-signin.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 17 Nov 2025 16:45:09 GMT -->
 </html>

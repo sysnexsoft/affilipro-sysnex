@@ -75,26 +75,6 @@
         body {
             top: 0 !important;
         }
-        .goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, .goog-te-gadget-icon {
-            display: none !important;
-        }
-        .goog-tooltip, .goog-tooltip:hover {
-            display: none !important;
-        }
-        .goog-text-highlight {
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        /* ১. গুগলের মেইন ব্যানার আইফ্রেম পুরোপুরি ব্লক করা */
-        .goog-te-banner-frame,
-        .goog-te-banner-frame.skiptranslate,
-        #goog-gt-tt,
-        .goog-te-balloon-frame {
-            display: none !important;
-            visibility: hidden !important;
-        }
-
         /* ২. বডি এলিমেন্টকে গুগল জোর করে নিচে নামাতে না পারে তার ব্যবস্থা */
         body {
             top: 0 !important;
@@ -106,10 +86,6 @@
             background-color: transparent !important;
         }
 
-        .skiptranslate {
-            display: none !important;
-        }
-
         /* ৪. টেক্সট হাইলাইট বা মাউস হোভার পপআপ বন্ধ করা */
         .goog-text-highlight {
             background-color: transparent !important;
@@ -117,11 +93,18 @@
             box-sizing: border-box !important;
         }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NY180Q5L3T"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
+        gtag('config', 'G-NY180Q5L3T');
+    </script>
 </head>
 <body>
 <div class="read-progress"></div>
-{{----}}
 
 <!-- ===================== HERO ===================== -->
 @include('frontEnd.layout.header')
@@ -130,30 +113,7 @@
 
 @include('frontEnd.layout.footer')
 
-<!-- Sticky mobile CTA -->
-<div class="sticky-cta lg:hidden p-3">
-    <div class="glass-dark rounded-2xl p-3 flex items-center justify-between gap-3 mx-3">
-        <div class="text-white text-sm"><strong>Today's #1 Pick</strong><br><span class="text-white/70">Save 38% — ends soon</span></div>
-        <a href="product-details.html" class="btn-accent text-sm no-underline whitespace-nowrap">View Deal</a>
-    </div>
-</div>
 
-<!-- Exit intent popup -->
-<div class="exit-overlay" id="exitPopup">
-    <div class="card-premium max-w-md w-full p-8 text-center relative">
-        <button data-exit-close class="absolute top-4 right-4 text-slate-400 text-xl"><i class="fa-solid fa-xmark"></i></button>
-        <span class="w-16 h-16 rounded-2xl bg-gradient-primary grid place-items-center text-white text-3xl mx-auto"><i class="fa-solid fa-gift"></i></span>
-        <h3 class="font-display text-2xl font-extrabold mt-5">Wait! Grab your free deals guide</h3>
-        <p class="text-slate-500 mt-2">Get our 2025 "Best Value Buys" PDF + exclusive coupons sent instantly.</p>
-
-        <form id="subscriberForm" class="mt-5 space-y-3">
-            @csrf <input type="email" name="email" required placeholder="Enter your email" class="w-full rounded-full border border-slate-200 px-5 py-3 outline-none focus:border-primary" />
-            <button type="submit" class="btn-grad w-full">Send me the deals</button>
-        </form>
-
-        <button data-exit-close class="text-slate-400 text-sm mt-3 bg-transparent border-0">No thanks, I'll pay full price</button>
-    </div>
-</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

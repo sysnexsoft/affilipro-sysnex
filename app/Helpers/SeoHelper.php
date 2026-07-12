@@ -19,7 +19,7 @@ class SeoHelper
 
         // 🚀 ২. কাস্টম বা স্ট্যাটিক পেজের জন্য লজিক
         if ($type === 'Custom') {
-            $slugField = Str::slug($request->page_slug);
+            $slugField = $request->page_slug;
             $pageUrl = url("/{$slugField}");
             $title = $request->page_name;
 

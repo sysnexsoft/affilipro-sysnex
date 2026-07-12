@@ -1,6 +1,6 @@
 <!-- টপবার: আপনার রাখা ব্যাকগ্রাউন্ড ও z-index হুবহু ঠিক রাখা হয়েছে -->
 <div class="text-white py-2 border-b border-slate-800" style="font-size: 13px; position: relative; z-index: 1050; background-color: lightgrey">
-    <div class="container-x flex items-center justify-between gap-4" style="position: relative;">
+    <div class="container-xxl flex items-center justify-between gap-4" style="position: relative;">
         <div class="flex items-center gap-2 flex-grow max-w-xl lg:max-w-2xl position-relative">
             <span class="badge bg-primary text-xs uppercase px-2 py-0.5 rounded fw-bold text-white shadow-sm flex-shrink-0 z-10">
                 Update

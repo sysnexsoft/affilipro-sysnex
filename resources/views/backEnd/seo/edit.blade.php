@@ -17,6 +17,10 @@
                     <div class="row g-3">
                         <!-- Title & Canonical -->
                         <div class="col-md-6">
+                            <label class="form-label fw-semibold">Page Slug</label>
+                            <input type="text" name="page_slug" class="form-control" value="{{ $page->page_slug }}">
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold">Meta Title</label>
                             <input type="text" name="meta_title" class="form-control" value="{{ $page->meta_title }}">
                         </div>

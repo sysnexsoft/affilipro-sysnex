@@ -3,6 +3,7 @@ Allow: /
 
 # Disallow specific folders that search engines shouldn't crawl
 Disallow: /admin/
+Disallow: /admin/products/compare-fields
 Disallow: /login
 Disallow: /register
 Disallow: /password/
