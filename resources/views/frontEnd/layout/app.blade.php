@@ -3,69 +3,81 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ $seo->meta_title ?? '' }} — {{env('APP_NAME')}}</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 
+    <title>{{ $seo->meta_title ?? 'Home' }} — {{ config('app.name') }}</title>
+
+    <!-- SEO Meta Tags -->
     <meta name="title" content="{{ $seo->meta_title ?? '' }}">
     <meta name="description" content="{{ $seo->meta_description ?? '' }}">
     <meta name="keywords" content="{{ $seo->meta_keywords ?? '' }}">
     <meta name="robots" content="{{ $seo->meta_robots ?? 'index, follow' }}">
-    <meta name="author" content="{{env('APP_NAME')}}">
-    <meta name="publisher" content="{{env('APP_NAME')}}">
+    <meta name="author" content="{{ config('app.name') }}">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="google" content="notranslate" />
     <link rel="canonical" href="{{ $seo->canonical_url ?? url()->current() }}">
+
+    <!-- Open Graph / Facebook / Twitter -->
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="{{ $seo->meta_title ?? '' }}">
     <meta property="og:description" content="{{ $seo->meta_description ?? '' }}">
     <meta property="og:image" content="{{ isset($seo->meta_image) ? asset($seo->meta_image) : asset('default-og-image.jpg') }}">
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="{{ $seo->meta_title ?? '' }}">
-    <meta property="twitter:description" content="{{ $seo->meta_description ?? '' }}">
-    <meta property="twitter:image" content="{{ isset($seo->meta_image) ? asset($seo->meta_image) : asset('default-og-image.jpg') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seo->meta_title ?? '' }}">
+    <meta name="twitter:description" content="{{ $seo->meta_description ?? '' }}">
+    <meta name="twitter:image" content="{{ isset($seo->meta_image) ? asset($seo->meta_image) : asset('default-og-image.jpg') }}">
 
-    @if(!empty($seo->datalayer_json))
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({!! $seo->datalayer_json !!});
-        </script>
-    @endif
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset($web_setting->favicon_logo) }}">
 
-    @if(!empty($seo->schema_script))
-        {!! $seo->schema_script !!}
-    @endif
-
-
-<!-- Fonts -->
+    <!-- Preload Critical Assets -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <!-- Bootstrap 5 -->
+
+    <!-- Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <!-- AOS -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-    <!-- Swiper -->
     <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('Frontend/assets/css/style.css') }}" />
 
     <!-- Tailwind Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: { extend: { colors: {
-                        primary: '#2563eb', secondary: '#7c3aed', accent: '#06b6d4', success: '#10b981'
-                    }, fontFamily: { display: ['Sora','sans-serif'], sans: ['Plus Jakarta Sans','sans-serif'] } } }
+            theme: {
+                extend: {
+                    colors: { primary: '#2563eb', secondary: '#7c3aed', accent: '#06b6d4', success: '#10b981' },
+                    fontFamily: { display: ['Sora','sans-serif'], sans: ['Plus Jakarta Sans','sans-serif'] }
+                }
+            }
         };
     </script>
-    <link rel="stylesheet" href="{{asset('/')}}Frontend/assets/css/style.css" />
 
-    <!-- Schema markup -->
+    <!-- DataLayer & Dynamic Scripts -->
+    @if(!empty($seo->datalayer_json))
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({!! $seo->datalayer_json !!});
+        </script>
+@endif
+
+@if(!empty($seo->schema_script))
+    {!! $seo->schema_script !!}
+@endif
+
+<!-- Schema Markup: WebSite & Organization -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "Affili Product",
-        "url": "{!! url('/') !!}",
+        "name": "{{ config('app.name') }}",
+        "url": "{{ url('/') }}",
         "potentialAction": {
             "@type": "SearchAction",
             "target": "{!! url('/product') !!}?category=all\u0026brand=all\u0026sort=rating\u0026search={query}\u0026page=1",
@@ -73,29 +85,6 @@
         }
     }
     </script>
-    <style>
-        /* গুগলের ওপরের ট্রান্সলেট বার বা ব্যানার চিরতরে হাইড করার জন্য */
-        body {
-            top: 0 !important;
-        }
-        /* ২. বডি এলিমেন্টকে গুগল জোর করে নিচে নামাতে না পারে তার ব্যবস্থা */
-        body {
-            top: 0 !important;
-            position: static !important;
-        }
-
-        /* ৩. কিছু কিছু ব্রাউজারে গুগল <html> ট্যাগে ক্লাস বসায়, সেটা ফিক্স করা */
-        html {
-            background-color: transparent !important;
-        }
-
-        /* ৪. টেক্সট হাইলাইট বা মাউস হোভার পপআপ বন্ধ করা */
-        .goog-text-highlight {
-            background-color: transparent !important;
-            box-shadow: none !important;
-            box-sizing: border-box !important;
-        }
-    </style>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NY180Q5L3T"></script>
@@ -103,9 +92,15 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-NY180Q5L3T');
     </script>
+
+    <style>
+        /* Google Translate & UX Fixes */
+        body { top: 0 !important; position: static !important; }
+        html { background-color: transparent !important; }
+        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+    </style>
 </head>
 <body>
 <div class="read-progress"></div>
