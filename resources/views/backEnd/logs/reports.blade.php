@@ -13,36 +13,43 @@
                     <option value="yesterday" {{ $filter == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                     <option value="last_7_days" {{ $filter == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
                     <option value="last_30_days" {{ $filter == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                    <option value="lifetime" {{ $filter == 'lifetime' ? 'selected' : '' }}>Lifetime</option>
                 </select>
             </form>
         </div>
 
-        <!-- 📈 কাউন্টার উইজেটস -->
         <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card border-0 bg-primary text-white shadow-sm rounded-3">
-                    <div class="card-body p-4">
-                        <span class="text-white fw-bold small text-uppercase">Total Page Views</span>
-                        <h2 class="mt-2 mb-0 fw-bold">{{ number_format($totalClicks) }}</h2>
-                    </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card bg-primary text-white p-3">
+                    <span>Real Traffic</span>
+                    <h3>{{ number_format($totalRealClicks) }}</h3>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card border-0 bg-success text-white shadow-sm rounded-3">
-                    <div class="card-body p-4">
-                        <span class="text-white fw-bold small text-uppercase">Unique Visitors</span>
-                        <h2 class="mt-2 mb-0 fw-bold">{{ number_format($uniqueVisitors) }}</h2>
-                    </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card bg-warning text-dark p-3">
+                    <span>Bot/Fake Traffic</span>
+                    <h3>{{ number_format($totalFakeClicks) }}</h3>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card border-0 bg-danger text-white shadow-sm rounded-3">
-                    <div class="card-body p-4">
-                        <span class="text-white fw-bold small text-uppercase">Single-Click Visitors</span>
-                        <h2 class="mt-2 mb-0 fw-bold">{{ $bounceRateEstimate }}% <small class="fs-6">(Bounce Appx)</small></h2>
-                    </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card bg-success text-white p-3">
+                    <span>Unique Visitors</span>
+                    <h3>{{ number_format($uniqueVisitors) }}</h3>
                 </div>
             </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card bg-info-subtle shadow-lg text-dark p-3">
+                    <span>Organic Visitors</span>
+                    <h3>{{ $totalOrganicClicks }}</h3>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card bg-danger text-white p-3">
+                    <span>Real Bounce Rate</span>
+                    <h3>{{ $bounceRateEstimate }}%</h3>
+                </div>
+            </div>
+
         </div>
 
         <!-- 📉 নতুন ফিচার: Hourly Traffic Trend (Line Chart) -->
@@ -59,7 +66,7 @@
             <!-- 🔥 Top 5 Pages -->
             <div class="col-md-6 mb-4">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header text-dark bg-white py-3 fw-bold">🔥 Top 5 Visited Pages</div>
+                    <div class="card-header text-dark bg-white py-3 fw-bold">🔥 Top 10 Visited Pages</div>
                     <div class="card-body p-0">
                         <table class="table table-hover mb-0 align-middle">
                             <tbody>
@@ -101,7 +108,7 @@
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-header text-dark bg-white py-3 fw-bold">📱 Platform Distribution</div>
                     <div class="card-body d-flex align-items-center justify-content-center">
-                        <div style="width: 220px; height: 220px;">
+                        <div style="width: 350px; height: 350px;">
                             <canvas id="deviceChart"></canvas>
                         </div>
                     </div>
@@ -113,15 +120,15 @@
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-header text-dark bg-white py-3 fw-bold">🌐 Preferred Browsers</div>
                     <div class="card-body d-flex align-items-center justify-content-center">
-                        <div style="width: 220px; height: 220px;">
+                        <div style="width: 350px; height: 350px;">
                             <canvas id="browserChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-white py-3 fw-bold">🌍 Top 5 Visitor Countries</div>
+                <div class="card h-100 shadow-sm border-0" style="overflow-y: scroll; max-height: 500px">
+                    <div class="card-header bg-white py-3 fw-bold">🌍 Top Visitor Countries</div>
                     <div class="card-body p-0">
                         <table class="table table-hover mb-0 align-middle">
                             <tbody>
@@ -137,7 +144,20 @@
                 </div>
             </div>
         </div>
-
+        <!-- চার্ট সেকশন (JS অংশ) -->
+        <script>
+            // Real vs Fake Chart
+            new Chart(document.getElementById('trafficTypeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Real', 'Bots'],
+                    datasets: [{
+                        data: [{{ $totalRealClicks }}, {{ $totalFakeClicks }}],
+                        backgroundColor: ['#0d6efd', '#ffc107']
+                    }]
+                }
+            });
+        </script>
     </div>
 @endsection
 

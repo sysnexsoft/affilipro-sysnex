@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers; // আপনার প্রজেক্টের সঠিক নেমস্পেস অনুযায়ী পরিবর্তন করে নেবেন
+namespace App\Helpers;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -58,10 +58,10 @@ class SeoHelper
             ]);
         }
 
-        // $model থেকে স্ল্যাগ নেওয়া হচ্ছে (Product ও Blog দুটোরই 'slug' কলাম আছে)
+        // $model থেকে স্ল্যাগ নেওয়া হচ্ছে (Product ও Blog দুটোরই 'slug' কলাম আছে)
         $slugField = $model->slug;
 
-        // 🚀 ৩. আপনার প্রোডাক্ট এবং ব্লগ টেবিলের কলাম অনুযায়ী ডেটা ম্যাপিং
+        // 🚀 ৩. প্রোডাক্ট এবং ব্লগ টেবিলের কলাম অনুযায়ী ডেটা ম্যাপিং
         if ($type === 'Article') {
             $pageUrl = url("/blog/{$slugField}");
             $title = $model->title;
@@ -112,32 +112,98 @@ class SeoHelper
             // প্রোডাক্টের বেস প্রাইস ক্যালকুলেশন (sale_price থাকলে সেটা আগে নিবে)
             $basePrice = !empty($model->sale_price) && $model->sale_price > 0 ? $model->sale_price : ($model->regular_price ?? 0);
 
-            // ডাটাবেজ থেকে একটিভ সব কারেন্সি নিয়ে আসা
+            // ডাটাবেজ থেকে একটিভ সব কারেন্সি নিয়ে আসা
             $allCurrencies = DB::table('currencies')->where('status', 1)->get();
             $offersArray = [];
             $defaultCurrencyCode = 'USD';
 
-            // লুপ চালিয়ে প্রতিটি কারেন্সির জন্য আলাদা অফার তৈরি করা
+            $targetCountries = collect();
+            if (!empty($model->target_countries)) {
+                $targetCountries = DB::table('countries')
+                    ->whereIn('id', $model->target_countries)
+                    ->select('id', 'code')
+                    ->get()
+                    ->map(function($country) {
+                        $states = DB::table('states')
+                            ->where('country_id', $country->id)
+                            ->where('status', 1)
+                            ->pluck('name')
+                            ->toArray();
+
+                        return [
+                            'code'   => strtoupper($country->code),
+                            'states' => $states
+                        ];
+                    });
+            }
+
+            // লুপ চালিয়ে প্রতিটি কারেন্সির জন্য আলাদা অফার তৈরি করা
             foreach ($allCurrencies as $curr) {
-                // exchange_rate দিয়ে গুণ করে ওই কারেন্সির প্রাইস বের করা
+
+                // exchange_rate দিয়ে গুণ করে ওই কারেন্সির প্রাইস বের করা
                 $convertedPrice = floatval($basePrice) * floatval($curr->exchange_rate);
 
                 if($curr->is_default == 1) {
                     $defaultCurrencyCode = $curr->code;
                 }
 
-                $offersArray[] = [
+                $offerData = [
                     "@type" => "Offer",
                     "url" => $model->affiliate_url ?? $pageUrl, // সরাসরি আপনার অ্যাফিলিয়েট ইউআরএল ট্র্যাক করবে
                     "priceCurrency" => $curr->code, // যেমন: USD, BDT, INR
-                    "price" => round($convertedPrice, 2), // দশমিকের পর ২ ঘর রাখা হলো
+                    "price" => (float) number_format($convertedPrice, 2, '.', ''),
                     "priceValidUntil" => now()->addYear()->toDateString(),
                     "itemCondition" => "https://schema.org/NewCondition",
                     "availability" => "https://schema.org/InStock"
                 ];
+
+                // 🎯 শিপিং ডিটেইলসে দেশ এবং স্টেটগুলো ডাইনামিক ইনজেক্ট করা (গুগল মার্চেন্ট সেন্টারের এরর এড়াতে)
+                if ($targetCountries->isNotEmpty()) {
+                    $shippingDetails = [];
+                    foreach ($targetCountries as $target) {
+
+                        $regionTarget = [
+                            "@type" => "DefinedRegion",
+                            "addressCountry" => $target['code']
+                        ];
+
+                        // ডাটাবেজে যদি ওই দেশের কোনো স্টেট এন্ট্রি করা থাকে, তবেই কেবল স্কিমাতে অ্যাড হবে
+                        if (!empty($target['states'])) {
+                            $regionTarget["addressRegion"] = $target['states'];
+                        }
+
+                        $shippingDetails[] = [
+                            "@type" => "OfferShippingDetails",
+                            "shippingDestination" => $regionTarget,
+                            "deliveryTime" => [
+                                "@type" => "ShippingDeliveryTime",
+                                "handlingTime" => [
+                                    "@type" => "QuantitativeValue",
+                                    "minValue" => 0,
+                                    "maxValue" => 1,
+                                    "unitCode" => "d" // "d" মানে দিন (Days)
+                                ],
+                                "transitTime" => [
+                                    "@type" => "QuantitativeValue",
+                                    "minValue" => 1,
+                                    "maxValue" => 5,
+                                    "unitCode" => "d"
+                                ]
+                            ],
+                            "shippingRate" => [
+                                "@type" => "MonetaryAmount",
+                                "value" => 0,
+                                "currency" => $curr->code
+                            ]
+                        ];
+                    }
+                    $offerData["shippingDetails"] = $shippingDetails;
+                }
+
+                $offersArray[] = $offerData;
             }
 
-            // রিলেশনশিপ থেকে ব্র্যান্ড নেম লোড (যদি থাকে, নয়তো সাইটের নাম)
+            // রিলেশনশিপ থেকে ব্র্যান্ড নেম লোড (যদি থাকে, নয়তো সাইটের নাম)
             $brandName = ($model->brand && isset($model->brand->name)) ? $model->brand->name : (env('APP_NAME') ?? 'Generic');
 
             $productSchemaObj = [
@@ -151,18 +217,23 @@ class SeoHelper
                     "@type" => "Brand",
                     "name" => $brandName
                 ],
-                // এখানে আমরা একক Offer এর বদলে AggregateOffer এবং সম্পূর্ণ কারেন্সি অ্যারে পাস করছি
+                // এখানে একক Offer এর বদলে AggregateOffer এবং সম্পূর্ণ কারেন্সি ও জিও-টার্গেটেড অ্যারে পাস করা হচ্ছে
                 "offers" => [
                     "@type" => "AggregateOffer",
                     "priceCurrency" => $defaultCurrencyCode,
-                    "lowPrice" => count($offersArray) > 0 ? min(array_column($offersArray, 'price')) : round($basePrice, 2),
-                    "highPrice" => count($offersArray) > 0 ? max(array_column($offersArray, 'price')) : round($basePrice, 2),
+                    "lowPrice" => count($offersArray) > 0
+                        ? (float) number_format(min(array_column($offersArray, 'price')), 2, '.', '')
+                        : (float) number_format($basePrice, 2, '.', ''),
+
+                    "highPrice" => count($offersArray) > 0
+                        ? (float) number_format(max(array_column($offersArray, 'price')), 2, '.', '')
+                        : (float) number_format($basePrice, 2, '.', ''),
                     "offerCount" => count($offersArray),
                     "offers" => $offersArray
                 ]
             ];
 
-            // গুগল রিভিউ রেটিং বুস্ট: যদি প্রোডাক্টে রেটিং থাকে তবেই কেবল স্কিমাতে অ্যাড হবে (গুগল এরর এড়াতে)
+            // গুগল রিভিউ রেটিং বুস্ট: যদি প্রোডাক্টে রেটিং থাকে তবেই কেবল স্কিমাতে অ্যাড হবে (গুগল এরর এড়াতে)
             if ($model->review_count > 0) {
                 $productSchemaObj["aggregateRating"] = [
                     "@type" => "AggregateRating",
@@ -182,8 +253,8 @@ class SeoHelper
             "event" => $type === 'Article' ? "view_article" : "view_item",
             "page_type" => strtolower($type) . "_detail",
             "ecommerce" => [
-                "currency" => "USD", // ডাটালায়ার ট্র্যাকিং এর জন্য গ্লোবাল স্ট্যান্ডার্ড USD রাখা হলো
-                "value" => floatval($itemPrice),
+                "currency" => "USD", // ডাটালায়ার ট্র্যাকিং এর জন্য গ্লোবাল স্ট্যান্ডার্ড USD রাখা হলো
+                "value" => (float) round($itemPrice, 2),
                 "items" => [[
                     "item_name" => $title,
                     "item_category" => $type . "s",
@@ -194,7 +265,7 @@ class SeoHelper
         ];
         $dataLayerJson = json_encode($dataLayerObj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        // 🚀 ৬. আপনার `seo_management` টেবিলের সাথে রিলেশন অনুযায়ী ডাটাবেজে আপসার্ট (Update or Create)
+        // 🚀 ৬. আপনার `seo_management` টেবিলের সাথে রিলেশন অনুযায়ী ডাটাবেজে আপসার্ট (Update or Create)
         return $model->seo()->updateOrCreate(
             [
                 'model_type' => get_class($model),

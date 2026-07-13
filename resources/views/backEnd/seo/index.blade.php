@@ -46,37 +46,6 @@
                     </form>
                 </div>
             </div>
-            <!-- বাম পাশ: গ্লোবাল সেটিংস এবং ট্র্যাকিং স্ক্রিপ্ট -->
-            <div class="col-lg-7">
-                <form action="{{ route('admin.seo.global_update') }}" method="POST">
-                    @csrf
-                    <div class="card border-0 shadow-lg rounded-4 mb-4">
-                        <div class="card-header bg-secondary text-white p-3 fw-bold rounded-top-4">
-                            <i class="ri-settings-5-line"></i> Global Crawling & Script Setup
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold text-danger">Robots.txt Content</label>
-                                <textarea name="robots_txt" class="form-control font-monospace fs-7" rows="5">{{ $global->robots_txt }}</textarea>
-                                <small class="text-muted">গুগল ক্রলারকে কন্ট্রোল করার টেক্সট। উদাহরণ: <code>User-agent: * <br>Disallow: /admin</code></small>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold text-primary">Header Injector Scripts (GA4 / FB Pixel)</label>
-                                <textarea name="header_scripts" class="form-control font-monospace fs-7" rows="4" placeholder="<script>... Analytics Script Here ...</script>">{{ $global->header_scripts }}</textarea>
-                                <small class="text-muted">এখানে বসানো কোড সরাসরি সাইটের <code>&lt;head&gt;</code> ট্যাগে চলে যাবে।</small>
-                            </div>
-                            <div class="mb-0">
-                                <label class="form-label fw-bold text-secondary">Footer Injector Scripts</label>
-                                <textarea name="footer_scripts" class="form-control font-monospace fs-7" rows="3" placeholder="Chatbot codes etc.">{{ $global->footer_scripts }}</textarea>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-light p-3 text-end">
-                            <button type="submit" class="btn btn-success fw-bold px-4">Update Engines</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
         </div>
         <div class="row">
             <!-- ২. আপনার মেইন মেটা আর্কিটেকচার টেবিল -->
@@ -141,6 +110,37 @@
                         {{$pages->links('backEnd.layout.paginate')}}
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="{{ route('admin.seo.global_update') }}" method="POST">
+                    @csrf
+                    <div class="card border-0 shadow-lg rounded-4 mb-4">
+                        <div class="card-header bg-secondary text-white p-3 fw-bold rounded-top-4">
+                            <i class="ri-settings-5-line"></i> Global Crawling & Script Setup
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-danger">Robots.txt Content</label>
+                                <textarea name="robots_txt" class="form-control font-monospace fs-7" rows="5">{{ $global->robots_txt }}</textarea>
+                                <small class="text-muted">গুগল ক্রলারকে কন্ট্রোল করার টেক্সট। উদাহরণ: <code>User-agent: * <br>Disallow: /admin</code></small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-primary">Header Injector Scripts (GA4 / FB Pixel)</label>
+                                <textarea name="header_scripts" class="form-control font-monospace fs-7" rows="4" placeholder="<script>... Analytics Script Here ...</script>">{{ $global->header_scripts }}</textarea>
+                                <small class="text-muted">এখানে বসানো কোড সরাসরি সাইটের <code>&lt;head&gt;</code> ট্যাগে চলে যাবে।</small>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label fw-bold text-secondary">Footer Injector Scripts</label>
+                                <textarea name="footer_scripts" class="form-control font-monospace fs-7" rows="3" placeholder="Chatbot codes etc.">{{ $global->footer_scripts }}</textarea>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light p-3 text-end">
+                            <button type="submit" class="btn btn-success fw-bold px-4">Update Engines</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

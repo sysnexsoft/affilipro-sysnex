@@ -7,87 +7,106 @@ use App\Models\ClickLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AnalyticsController extends Controller
 {
-    // 🌐 ১. Real-time Traffic Logs
     public function trafficLogs()
     {
         $logs = ClickLog::latest()->paginate(50);
         return view('backEnd.logs.clicks', compact('logs'));
     }
-
-    // 📊 ২. Performance Reports
     public function performanceReports(Request $request)
     {
-        // 🗓️ ফিল্টারিং লজিক (Default: today)
+        // ১. ফিল্টারিং লজিক (যা আগে ছিল)
         $filter = $request->get('filter', 'today');
         $query = ClickLog::query();
 
         if ($filter == 'today') {
-            $query->whereDate('created_at', \Carbon\Carbon::today());
+            $query->whereDate('created_at', Carbon::today());
         } elseif ($filter == 'yesterday') {
-            $query->whereDate('created_at', \Carbon\Carbon::yesterday());
+            $query->whereDate('created_at', Carbon::yesterday());
         } elseif ($filter == 'last_7_days') {
-            $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(7));
+            $query->where('created_at', '>=', Carbon::now()->subDays(7));
         } elseif ($filter == 'last_30_days') {
-            $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(30));
+            $query->where('created_at', '>=', Carbon::now()->subDays(30));
         }
 
-        // ক) কাউন্টার উইজেটস ডেটা
-        $totalClicks = (clone $query)->count();
-        $uniqueVisitors = (clone $query)->distinct('ip_address')->count();
-        $bounceRateEstimate = $totalClicks > 0 ? round(((clone $query)->select('ip_address')->groupBy('ip_address')->having(\DB::raw('count(*)'), '=', 1)->get()->count() / $uniqueVisitors) * 100, 1) : 0;
+        // সব লগ সংগ্রহ (লজিক প্রসেস করার জন্য)
+        $logs = $query->get();
 
-        // খ) Top 5 Pages
-        $topPages = (clone $query)->select('url', DB::raw('count(*) as total'))
-            ->groupBy('url')
-            ->orderByDesc('total')
-            ->take(5)
-            ->get();
+        // বট ফিল্টারিং লজিক (নতুন)
+        $botPatterns = ['bot', 'crawler', 'spider', 'curl', 'python', 'googlebot', 'bingbot', 'slurp', 'yandex', 'headless'];
 
-        // গ) Top 5 Referrers
-        $topReferrers = (clone $query)->select('referrer', DB::raw('count(*) as total'))
-            ->groupBy('referrer')
-            ->orderByDesc('total')
-            ->take(5)
-            ->get();
+        $realVisitorsData = $logs->filter(fn($log) => !Str::contains(strtolower($log->user_agent), $botPatterns));
+        $fakeVisitorsData = $logs->filter(fn($log) => Str::contains(strtolower($log->user_agent), $botPatterns));
 
-        // ঘ) ডিভাইস ব্রেকডাউন (Chart)
-        $deviceData = (clone $query)->select('device', DB::raw('count(*) as total'))
-            ->groupBy('device')
-            ->get();
+        // ক) কাউন্টার উইজেটস (আগের লজিক + রিয়েল/ফেক আপডেট)
+        $totalRealClicks = $realVisitorsData->count();
+        $totalFakeClicks = $fakeVisitorsData->count();
+        $totalClicks = $logs->count(); // আগের টোটাল ক্লিকস
+        $uniqueVisitors = $realVisitorsData->pluck('ip_address')->unique()->count();
 
-        // ঙ) ব্রাউজার ব্রেকডাউন (New Chart)
-        $browserData = (clone $query)->select('browser', DB::raw('count(*) as total'))
-            ->groupBy('browser')
-            ->orderByDesc('total')
-            ->take(5)
-            ->get();
+        // আগের বাউন্স রেট লজিক (রিয়েল ডাটার ওপর)
+        $bounceRateEstimate = $uniqueVisitors > 0
+            ? round(($realVisitorsData->groupBy('ip_address')->filter(fn($g) => $g->count() == 1)->count() / $uniqueVisitors) * 100, 1)
+            : 0;
 
-        // 🌍 চ) রিয়েল কান্ট্রি ব্রেকডাউন (যা আগে মিসিং ছিল)
-        $countryData = (clone $query)->select('country', DB::raw('count(*) as total'))
-            ->groupBy('country')
-            ->orderByDesc('total')
-            ->take(5)
-            ->get();
+        $topPages = $realVisitorsData->groupBy('url')->map(function ($items, $url) {
+            return (object) [
+                'url' => $url,
+                'total' => $items->count()
+            ];
+        })->sortByDesc('total')->take(10);
 
-        // ছ) Hourly Traffic Trend (Line Chart - ২৪ ঘণ্টার ট্রেন্ড)
-        $hourlyData = (clone $query)->select(DB::raw('HOUR(created_at) as hour'), DB::raw('count(*) as total'))
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get();
+        $topReferrers = $realVisitorsData->groupBy('referrer')->map(function ($items, $referrer) {
+            return (object) [
+                'referrer' => $referrer,
+                'total' => $items->count()
+            ];
+        })->sortByDesc('total')->take(10);
 
-        // ২৪ ঘণ্টার সব আওয়ার জিরো দিয়ে ইনিশিয়ালের জন্য অ্যারে প্রিপেয়ার
-        $hourlyTicks = array_fill(0, 24, 0);
-        foreach ($hourlyData as $data) {
-            $hourlyTicks[$data->hour] = $data->total;
-        }
+        $deviceData = $realVisitorsData->groupBy('device')->map(function ($items, $device) {
+            return (object) [
+                'device' => $device,
+                'total' => $items->count()
+            ];
+        })->values();
 
-        // সব ডেটা একসাথে ভিউতে পাঠানো হলো
+        $browserData = $realVisitorsData->groupBy('browser')->map(function ($items, $browser) {
+            return (object) [
+                'browser' => $browser,
+                'total' => $items->count()
+            ];
+        })->sortByDesc('total')->values();
+
+        // কান্ট্রি ব্রেকডাউন
+        $countryData = $realVisitorsData->groupBy('country')->map(function ($items, $country) {
+            return (object) ['country' => $country, 'total' => $items->count()];
+        })->sortByDesc('total');
+
+        // ছ) Hourly Traffic Trend (আগের লজিক - ২৪ ঘণ্টার ট্রেন্ড)
+        $hourlyData = $realVisitorsData->groupBy(fn($l) => Carbon::parse($l->created_at)->format('H'))->map->count();
+        $hourlyTicks = array_map(fn($i) => $hourlyData->get(str_pad($i, 2, '0', STR_PAD_LEFT), 0), range(0, 23));
+
+        // সার্চ ইঞ্জিনের একটি তালিকা
+        $searchEngines = ['google', 'bing', 'yahoo', 'duckduckgo', 'baidu', 'yandex'];
+        // অর্গানিক ট্রাফিক আলাদা করা
+        $organicTrafficData = $realVisitorsData->filter(function($log) use ($searchEngines) {
+            if (!$log->referrer) return false;
+            foreach ($searchEngines as $engine) {
+                if (Str::contains(strtolower($log->referrer), $engine)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        $totalOrganicClicks = $organicTrafficData->count();
+        // ভিউতে সব পাঠানো হলো
         return view('backEnd.logs.reports', compact(
-            'totalClicks', 'uniqueVisitors', 'bounceRateEstimate',
-            'topPages', 'topReferrers', 'deviceData', 'browserData', 'countryData', 'hourlyTicks', 'filter'
+            'totalClicks', 'totalRealClicks', 'totalFakeClicks', 'uniqueVisitors', 'bounceRateEstimate',
+            'topPages', 'topReferrers', 'deviceData', 'browserData', 'countryData', 'hourlyTicks', 'filter','totalOrganicClicks'
         ));
     }
 }

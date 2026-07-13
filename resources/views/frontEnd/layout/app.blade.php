@@ -58,18 +58,21 @@
         };
     </script>
     <link rel="stylesheet" href="{{asset('/')}}Frontend/assets/css/style.css" />
+
     <!-- Schema markup -->
     <script type="application/ld+json">
-      {
-      "@context":"https://schema.org",
-      "@type":"WebSite",
-      "name":"AffiliPro",
-      "url":"/",
-      "potentialAction":{
-                "@type":"SearchAction","target":"/products.html?q={query}",
-                "query-input":"required name=query"}
-      }
-  </script>
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Affili Product",
+        "url": "{!! url('/') !!}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{!! url('/product') !!}?category=all\u0026brand=all\u0026sort=rating\u0026search={query}\u0026page=1",
+            "query-input": "required name=query"
+        }
+    }
+    </script>
     <style>
         /* গুগলের ওপরের ট্রান্সলেট বার বা ব্যানার চিরতরে হাইড করার জন্য */
         body {
@@ -93,6 +96,7 @@
             box-sizing: border-box !important;
         }
     </style>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NY180Q5L3T"></script>
     <script>

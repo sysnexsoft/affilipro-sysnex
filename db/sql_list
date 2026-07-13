@@ -1,1 +1,6 @@
+=================14/7/2026==============================
+ALTER TABLE `products` ADD `target_countries` JSON NULL DEFAULT NULL AFTER `search_keywords`;
+
+
+=================OLD================
 ALTER TABLE `products` ADD `coupon` VARCHAR(255) NULL DEFAULT NULL AFTER `sale_price`;

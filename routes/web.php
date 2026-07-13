@@ -138,6 +138,18 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin/page-settings', [Admin\PageSettingController::class, 'index'])->name('admin.page_settings.index');
         Route::post('/admin/page-settings', [Admin\PageSettingController::class, 'update'])->name('admin.page_settings.update');
 
+        // Country Routes
+        Route::get('countries', [Admin\CountryController::class, 'index'])->name('admin.countries.index');
+        Route::post('countries/store', [Admin\CountryController::class, 'store'])->name('admin.countries.store');
+        Route::put('countries/update/{country}', [Admin\CountryController::class, 'update'])->name('admin.countries.update');
+        Route::delete('countries/delete/{country}', [Admin\CountryController::class, 'destroy'])->name('admin.countries.destroy');
+
+        // Dynamic State Management inside Country
+        Route::get('countries/{id}/states', [Admin\CountryController::class, 'getStates'])->name('admin.countries.get_states');
+        Route::post('states/store', [Admin\CountryController::class, 'stateStore'])->name('admin.states.store');
+        Route::put('states/update/{id}', [App\Http\Controllers\Admin\CountryController::class, 'stateUpdate'])->name('admin.states.update');
+        Route::delete('states/delete/{id}', [Admin\CountryController::class, 'stateDestroy'])->name('admin.states.destroy');
+
         Route::get('/settings', [WebSettingController::class, 'index'])->name('admin.setting');
         Route::post('/settings-update', [WebSettingController::class, 'settingsUpdate'])->name('admin.setting.update');
         Route::get('/reset-password', [AdminAuthController::class, 'resetPasswordIndex'])->name('admin.reset.password');

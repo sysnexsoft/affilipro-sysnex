@@ -27,15 +27,11 @@ class ComparisonFieldController extends Controller
 
         // Track sequential save elements or warnings flags checks
         $savedCount = 0;
-
         foreach ($request->names as $nameItem) {
             $cleanName = trim($nameItem);
             $slug = Str::slug($cleanName);
-
-            // System safety validation parameters to prevent matching duplicates validation error crash rule:
             // Already dynamically entry processing exist checking logic configuration mapping
             $field = ComparisonField::where('slug', $slug)->first();
-
             if (!$field) {
                 $field = ComparisonField::create([
                     'name' => $cleanName,
@@ -46,7 +42,6 @@ class ComparisonFieldController extends Controller
 
             // Catch relation mapping category binding sync attachments multi rows array
             if ($request->has('category_ids') && !empty($request->category_ids)) {
-                // syncWithoutDetaching true use kora safe jate repeated data check overlap items drop track na hoy
                 $field->categories()->syncWithoutDetaching($request->category_ids);
             }
         }
@@ -70,7 +65,6 @@ class ComparisonFieldController extends Controller
         ]);
 
         $field->categories()->sync($request->category_ids ?? []);
-
         return redirect()->back()->with('success', 'Field modified and sync schema saved successfully!');
     }
 

@@ -204,7 +204,7 @@
                                                             <input type="text" name="specs[{{ $index }}][value]" class="form-control form-control-sm" value="{{ $spec->spec_value }}" placeholder="Value" required>
                                                         </div>
                                                         <div class="col-2">
-                                                            <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-danger remove-row w-100">Remove</button>
                                                         </div>
                                                     </div>
                                                 @empty
@@ -255,7 +255,6 @@
                                                 <div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="editors_choice" id="editors_choice" value="1" {{ $product->editors_choice ? 'checked' : '' }}><label for="editors_choice" class="form-check-label">Editors Choice</label></div>
                                             </div>
                                         </div>
-
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Meta Title</label>
                                             <input type="text" name="meta_title" class="form-control" value="{{ old('meta_title', $product->meta_title) }}">
@@ -271,6 +270,19 @@
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Meta Keywords</label>
                                             <textarea name="meta_keywords" class="form-control" rows="3" placeholder="keyword1, keyword2...">{{ old('meta_keywords', $product->meta_keywords) }}</textarea>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Target Countries / Geolocation</label>
+                                            <select name="target_countries[]" class="form-control country-select" multiple required>
+                                                @foreach($countries as $country)
+                                                    <option value="{{ $country->id }}"
+                                                            {{-- ডাটাবেজে অ্যারে আছে কিনা এবং এই দেশের আইডিটি সেই অ্যারেতে আছে কিনা চেক করা হচ্ছে --}}
+                                                            @if(is_array($product->target_countries) && in_array($country->id, $product->target_countries)) selected @endif>
+                                                        {{ $country->name }} ({{ $country->code }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">এই অ্যাফিলিয়েট অফারটি কোন দেশের ভিজিটরদের জন্য প্রযোজ্য তা সিলেক্ট করুন।</small>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Status</label>
@@ -295,6 +307,75 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-4 border-primary">
+        <h5 class="fw-bold text-slate-800 mb-3 border-bottom pb-2 d-flex align-items-center">
+            <i class="ri-search-eye-line text-primary me-2"></i> Advanced SEO Management
+        </h5>
+        @php
+            $seo = $product->seo ?? null;
+        @endphp
+
+        <form action="{{ route('admin.seo.update_page', [ 'service' => 'service' , 'id' => $seo->id]) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Meta Title</label>
+                    <input type="text" name="meta_title" class="form-control" value="{{ $seo->meta_title }}" placeholder="Enter SEO Meta Title">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Meta Description</label>
+                    <textarea name="meta_description" class="form-control" rows="3" placeholder="Enter SEO Meta Description String...">{{ $seo->meta_description }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Meta Keywords</label>
+                    <textarea name="meta_keywords" class="form-control" rows="3" placeholder="Enter SEO Meta Keywords...">{{ $seo->meta_keywords }}</textarea>
+                    <small class="text-danger">Comma separated keywords</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Canonical URL</label>
+                    <input type="url" name="canonical_url" class="form-control" value="{{ $seo->canonical_url ?? '' }}" placeholder="https://example.com/custom-link">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Meta Robots Directive</label>
+                    <select name="meta_robots" class="form-select">
+                        <option value="index, follow" {{ ($seo->meta_robots ?? 'index, follow') == 'index, follow' ? 'selected' : '' }}>INDEX, FOLLOW (Default)</option>
+                        <option value="noindex, nofollow" {{ ($seo->meta_robots ?? '') == 'noindex, nofollow' ? 'selected' : '' }}>NOINDEX, NOFOLLOW</option>
+                        <option value="index, nofollow" {{ ($seo->meta_robots ?? '') == 'index, nofollow' ? 'selected' : '' }}>INDEX, NOFOLLOW</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700">Social Share Image (Meta Image)</label>
+                    @if($seo && $seo->meta_image)
+                        <div class="mb-2">
+                            <img src="{{ asset($seo->meta_image) }}" class="img-thumbnail" style="max-height: 80px;">
+                        </div>
+                    @endif
+                    <input type="file" name="meta_image" class="form-control">
+                    <small class="text-muted">Recommended size: 1200x630px (OG Image Ratio)</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700 text-danger d-flex align-items-center">
+                        <i class="ri-code-box-line me-1"></i> Structured Schema Script (LD+JSON)
+                    </label>
+                    <textarea name="schema_script" class="form-control text-monospace small" rows="20" style="font-family: monospace; font-size: 13px;" placeholder="<script type='application/ld+json'>\n...\n</script>">{{ $seo->schema_script ?? '' }}</textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-slate-700 text-info d-flex align-items-center">
+                        <i class="ri-braces-line me-1"></i> GTM DataLayer JSON
+                    </label>
+                    <textarea name="datalayer_json" class="form-control text-monospace small" rows="20" style="font-family: monospace; font-size: 13px;" placeholder="{ 'event': 'service_view', 'category': 'Cleaning' }">{{ $seo->datalayer_json ?? '' }}</textarea>
+                </div>
+            </div>
+            <div class="p-3 text-end">
+                <button type="submit" class="btn btn-primary px-5 fw-bold rounded-3">Save Seo Configurations</button>
+            </div>
+        </form>
+
     </div>
     <!-- Quick Add Category Modal -->
     <div class="modal fade" id="quickAddCategory" tabindex="-1" aria-hidden="true">
@@ -469,7 +550,7 @@
                                                 <input type="text" name="specs[${specIndex}][value]" class="form-control form-control-sm" placeholder="Value for ${field.name}" required>
                                             </div>
                                             <div class="col-2">
-                                                <button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button>
+                                                <button type="button" class="btn btn-sm btn-danger remove-row w-100">Remove</button>
                                             </div>
                                         </div>`;
                                         $('#spec-container').append(html);
@@ -492,7 +573,7 @@
                 <div class="row g-2 mb-2 spec-row">
                     <div class="col-5"><input type="text" name="specs[${specIndex}][name]" class="form-control form-control-sm" placeholder="Specification Name" required></div>
                     <div class="col-5"><input type="text" name="specs[${specIndex}][value]" class="form-control form-control-sm" placeholder="Value" required></div>
-                    <div class="col-2"><button type="button" class="btn btn-sm btn-danger remove-row w-100"><i class="fa-solid fa-trash"></i></button></div>
+                    <div class="col-2"><button type="button" class="btn btn-sm btn-danger remove-row w-100">Remove</button></div>
                 </div>`;
                 $('#spec-container').append(html);
                 specIndex++;
@@ -592,16 +673,22 @@
                 });
             }
 
-            // Select2 Dynamic Initializer
             $('.category-select').select2({
                 placeholder: 'Search Categories',
                 width: '100%'
             }).on('change', function() {
                 $(this).valid();
             });
-            // Select2 Dynamic Initializer
+
             $('.brand-select').select2({
                 placeholder: 'Search Brand',
+                width: '100%'
+            }).on('change', function() {
+                $(this).valid();
+            });
+
+            $('.country-select').select2({
+                placeholder: 'Search Country',
                 width: '100%'
             }).on('change', function() {
                 $(this).valid();

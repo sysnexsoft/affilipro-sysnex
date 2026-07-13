@@ -251,6 +251,16 @@
                                             <label class="form-label fw-bold">Meta Keywords</label>
                                             <textarea name="meta_keywords" class="form-control" rows="3" placeholder="keyword1, keyword2..."></textarea>
                                         </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Target Countries / Geolocation</label>
+                                            <select name="target_countries[]" class="form-control country-select" multiple required>
+                                                @foreach($countries as $country)
+                                                    <option value="{{ $country->id }}">{{ $country->name }} ({{ $country->code }})</option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">এই অ্যাফিলিয়েট অফারটি কোন দেশের ভিজিটরদের জন্য প্রযোজ্য তা সিলেক্ট করুন।</small>
+                                        </div>
                                     </div>
 
                                     <!-- 💡 Final Step Actions - Submit Button appears here -->
@@ -543,6 +553,13 @@
             });
             $('.brand-select').select2({
                 placeholder: 'Search Brands',
+                width: '100%'
+            }).on('change', function() {
+                $(this).valid();
+            });
+
+            $('.country-select').select2({
+                placeholder: 'Select Country',
                 width: '100%'
             }).on('change', function() {
                 $(this).valid();

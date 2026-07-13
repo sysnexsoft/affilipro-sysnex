@@ -55,6 +55,8 @@ return new class extends Migration
             $table->text('search_keywords')->nullable();
             $table->fullText('search_keywords');
 
+            $table->json('target_countries')->nullable();
+
             $table->timestamps();
         });
     }

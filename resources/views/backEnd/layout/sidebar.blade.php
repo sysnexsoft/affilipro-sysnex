@@ -213,6 +213,11 @@
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="{{route('admin.brand.index')}}">Email Configuration</a>
                         </li>
+
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.countries.index')}}">Country</a>
+                        </li>
+
                         @can('currency.list')
                             <li class="sub-nav-item">
                                 <a class="sub-nav-link {{ request()->is('admin/currency*') ? 'active text-dark bg-info-subtle' : ''}}" href="{{route('admin.currency.index')}}">Currency Settings</a>

@@ -6,6 +6,7 @@ use App\Helpers\ImageHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Country;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\SearchIndexerService;
@@ -33,8 +34,9 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('status',1)->get();
+        $countries = Country::where('status',1)->get();
         $brands = Brand::where('status',1)->get();
-        return view('backEnd.product.create', compact('categories','brands'));
+        return view('backEnd.product.create', compact('categories','brands','countries'));
     }
 
     public function store(Request $request)
@@ -42,7 +44,8 @@ class ProductController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string',
-            'affiliate_url' => 'required|url'
+            'affiliate_url' => 'required|url',
+            'target_countries' => 'nullable|array'
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -50,7 +53,7 @@ class ProductController extends Controller
             $product->fill($request->only([
                 'title', 'sku', 'brand_id', 'short_description', 'description', 'pros', 'cons',
                 'regular_price', 'sale_price', 'coupon', 'affiliate_url', 'affiliate_network', 'commission_rate',
-                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url'
+                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url','target_countries'
             ]));
 
             $slug = Str::slug($request->slug ?? $request->title);
@@ -109,7 +112,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $categories = Category::all();
         $brands = Brand::all();
-        return view('backEnd.product.edit', compact('product', 'categories', 'brands'));
+        $countries = Country::where('status',1)->get();
+        return view('backEnd.product.edit', compact('product', 'categories', 'brands','countries'));
     }
 
     public function update(Request $request, $id)
@@ -118,6 +122,7 @@ class ProductController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|unique:products,slug,' . $id,
             'affiliate_url' => 'required|url',
+            'target_countries' => 'nullable|array' // 🎯 ভ্যালিডেশন রুল যুক্ত করা হলো
         ]);
 
         return DB::transaction(function () use ($request, $id) {
@@ -125,7 +130,8 @@ class ProductController extends Controller
             $product->fill($request->only([
                 'title', 'sku', 'brand_id', 'short_description', 'description', 'pros', 'cons',
                 'regular_price', 'sale_price', 'coupon', 'affiliate_url', 'affiliate_network', 'commission_rate',
-                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url'
+                'meta_title', 'meta_description', 'meta_keywords', 'canonical_url',
+                'target_countries' // 🎯 ফিল্ডটি fillable এর মধ্যে ইনজেক্ট করা হলো
             ]));
 
             $slug = Str::slug($request->slug ?? $request->title);
@@ -144,6 +150,8 @@ class ProductController extends Controller
             if($request->hasFile('featured_image')){
                 $product->featured_image = ImageHelper::upload($request->file('featured_image'), 'uploads/products/thumbnails', 800, 800, $product->featured_image);
             }
+
+            // 🎯 ডাটাবেজে প্রোডাক্ট সেভ (এখানেই target_countries ডাটাবেজে ঢুকে যাবে)
             $product->save();
 
             // ⚡ [SEARCH INDEX UPDATE]
@@ -178,7 +186,10 @@ class ProductController extends Controller
                 $product->faqs()->createMany($faqs);
             }
 
+            // রিলেশন রিলোড করা
             $product->load('brand');
+
+            // 🚀 আপডেট হওয়া $product অবজেক্ট পাস করা হলো, যা ডাটাবেজ থেকে সরাসরি নতুন target_countries রিড করবে
             \App\Helpers\SeoHelper::generateAutoSeo($product, $request, 'Product');
 
             return redirect()->route('admin.product.index')->with('success', 'Product updated successfully!');

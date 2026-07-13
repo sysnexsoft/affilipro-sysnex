@@ -44,10 +44,13 @@ class Product extends Model
         'meta_description',
         'meta_keywords',
         'canonical_url',
+
+        'target_countries'
     ];
 
     protected $casts = [
         'category_ids' => 'array',
+        'target_countries' => 'array',
     ];
 
     /*public function category()
