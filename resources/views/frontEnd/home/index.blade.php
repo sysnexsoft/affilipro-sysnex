@@ -96,7 +96,7 @@
                 @foreach($categories as $cat)
                     <a href="{{ route('product', ['category' => $cat->slug]) }}" class="card-premium p-4 text-center no-underline block hover:scale-105 transition-all">
                         <div class="w-70 h-70 rounded-full grid place-items-center mx-auto text-xl mb-3">
-                            <img class=" rounded-full" src="{{ asset($cat->image) }}" alt="">
+                            <img class="img-fluid" src="{{ asset($cat->image) }}" alt="">
                         </div>
                         <h4 class="font-bold text-sm text-slate-900 m-0">{{ $cat->name }}</h4>
                     </a>

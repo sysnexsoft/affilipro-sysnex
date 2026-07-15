@@ -249,7 +249,9 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Meta Keywords</label>
-                                            <textarea name="meta_keywords" class="form-control" rows="3" placeholder="keyword1, keyword2..."></textarea>
+                                            <input name="meta_keywords" id="meta_keywords" placeholder="Keywords লিখুন এবং Enter চাপুন" class="form-control">
+                                            <small class="text-muted">একাধিক কিওয়ার্ড কমা (,) দিয়ে আলাদা করুন অথবা একসাথে কপি-পেস্ট করুন।</small>
+                                            <input type="hidden" name="meta_keywords_final" id="meta_keywords_final">
                                         </div>
 
                                         <div class="col-md-6 mb-3">
@@ -346,6 +348,11 @@
     </div>
 @endsection
 @push('js')
+    <!-- Tagify CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+
+    <!-- Tagify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -719,6 +726,21 @@
             if (typeof $.fn.valid === 'function') {
                 $('#sku_code').valid();
             }
+        });
+
+        var input = document.querySelector('input[name=meta_keywords]');
+
+        var tagify = new Tagify(input, {
+            delimiters: ",",
+            transformTag: function(tagData) {
+                tagData.value = tagData.value.replace(/"/g, '');
+            }
+        });
+
+        // ফর্ম সাবমিট করার আগে ডাটা ফরম্যাট করা
+        document.querySelector('form').addEventListener('submit', function() {
+            let tags = tagify.value.map(item => item.value); // শুধু ভ্যালুগুলো আলাদা করা
+            document.getElementById('meta_keywords_final').value = tags.join(','); // কমা দিয়ে স্ট্রিং বানানো
         });
     </script>
 @endpush
