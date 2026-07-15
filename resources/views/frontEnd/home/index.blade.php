@@ -6,7 +6,7 @@
         <div class="blob bg-accent w-80 h-80 top-20 right-0"></div>
         <div class="container-xxl relative z-40">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div data-aos="fade-right">
+                <div>
                     <span class="eyebrow"><i class="fa-solid fa-shield-halved me-1"></i> Trusted by 2.4M+ smart shoppers</span>
                     <h1 class="font-display text-4xl md:text-6xl font-extrabold leading-tight mt-5 text-slate-900">
                         Buy smarter with <span class="text-gradient">expert-tested</span> reviews & real deals
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <div class="relative" data-aos="fade-left">
+                <div class="relative">
                     @if($bestRatedProducts->count() > 0)
                         @php $topPick = $bestRatedProducts->first(); @endphp
                         <div class="card-premium p-6 float">
@@ -63,20 +63,24 @@
                             </div>
                             <div class="">
                                 @if($topPick->featured_image)
-                                    <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}">
-                                        <img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}" class="w-full h-full object-contain">
+                                    <a href="{{ route('product.details', ['slug' => $topPick->slug]) }}">
+                                        <img src="{{ asset($topPick->featured_image) }}" alt="{{ $topPick->title }}"
+                                             loading="eager"
+                                             decoding="async"
+                                             fetchpriority="high"
+                                             class="w-full h-full object-contain">
                                     </a>
                                 @else
                                     <i class="fa-solid fa-headphones-simple"></i>
                                 @endif
                             </div>
                             <h3 class="font-display font-bold text-lg mt-4">
-                                <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="">{{ $topPick->title }} </a>
+                                <a href="{{ route('product.details', ['slug' => $topPick->slug]) }}" class="">{{ $topPick->title }} </a>
                             </h3>
                             <p class="text-sm text-slate-500">{{ Str::limit($topPick->short_description, 60) }}</p>
                             <div class="flex items-center justify-between mt-4">
                                 <div><span class="text-2xl font-extrabold text-slate-900">{{ format_price($topPick->sale_price) }}</span></div>
-                                <a href="{{ route('product.details', ['slug' => $topPick->slug, 'top_pick' => 1]) }}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                                <a href="{{ route('product.details', ['slug' => $topPick->slug]) }}" class="btn-accent text-sm no-underline">View Deal <i class="fa-solid fa-arrow-right ms-1"></i></a>
                             </div>
                         </div>
                     @endif
@@ -96,7 +100,7 @@
                 @foreach($categories as $cat)
                     <a href="{{ route('product', ['category' => $cat->slug]) }}" class="card-premium p-4 text-center no-underline block hover:scale-105 transition-all">
                         <div class="w-70 h-70 rounded-full grid place-items-center mx-auto text-xl mb-3">
-                            <img class="img-fluid" src="{{ asset($cat->image) }}" alt="">
+                            <img class="img-fluid" src="{{ asset($cat->image) }}" alt="{{ $cat->name }}">
                         </div>
                         <h4 class="font-bold text-sm text-slate-900 m-0">{{ $cat->name }}</h4>
                     </a>
@@ -234,7 +238,7 @@
                             <td class="p-4">
                                 <a href="{{route('product.details',$bProduct->slug)}}">
                                     <div class="flex items-center gap-3">
-                                        <img class="w-10 rounded-2" src="{{asset($bProduct->featured_image)}}" alt="">
+                                        <img class="w-10 rounded-2" src="{{asset($bProduct->featured_image)}}" alt="{{ $bProduct->title }}">
                                         <span class="font-bold text-slate-900">{{ $bProduct->title }}</span>
                                     </div>
                                 </a>
@@ -261,7 +265,7 @@
                 <span class="eyebrow">Loved by readers</span>
                 <h2 class="font-display text-3xl md:text-4xl font-extrabold mt-4">What Our Community Says</h2>
             </div>
-            <div class="swiper testimonial-swiper mt-12 pb-12">
+            {{--<div class="swiper testimonial-swiper mt-12 pb-12">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide card-premium p-6">
                         <p class="text-slate-600">"This site saved me over $200 on my laptop purchase! The comparison data is extremely accurate."</p>
@@ -269,7 +273,7 @@
                     </div>
                 </div>
                 <div class="swiper-pagination"></div>
-            </div>
+            </div>--}}
         </div>
     </section>
 

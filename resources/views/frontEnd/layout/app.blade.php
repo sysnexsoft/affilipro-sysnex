@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 
     <title>{{ $seo->meta_title ?? 'Home' }} — {{ config('app.name') }}</title>
 
@@ -40,25 +38,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="{{asset('/Frontend/assets/css/bootstrap.min.css')}}" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet" />
+    <link href="{{asset('/Frontend/assets/css/aos.css')}}" rel="stylesheet" />
+    <link href="{{asset('/Frontend/assets/css/swiper-bundle.css')}}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('Frontend/assets/css/style.css') }}" />
-
-    <!-- Tailwind Play CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { primary: '#2563eb', secondary: '#7c3aed', accent: '#06b6d4', success: '#10b981' },
-                    fontFamily: { display: ['Sora','sans-serif'], sans: ['Plus Jakarta Sans','sans-serif'] }
-                }
-            }
-        };
-    </script>
-
+    @vite('resources/css/app.css')
     <!-- DataLayer & Dynamic Scripts -->
     @if(!empty($seo->datalayer_json))
         <script>
@@ -101,6 +86,7 @@
         html { background-color: transparent !important; }
         .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
     </style>
+
 </head>
 <body>
 <div class="read-progress"></div>
@@ -114,16 +100,26 @@
 
 
 
-<script>
+{{--<script>
     document.addEventListener('DOMContentLoaded', () => {
+
         const form = document.getElementById('subscriberForm');
         const popup = document.getElementById('exitPopup');
+
+        if (!form) {
+            console.warn('subscriberForm not found');
+            return;
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             const submitButton = form.querySelector('button[type="submit"]');
             const formData = new FormData(form);
+
             submitButton.disabled = true;
             submitButton.textContent = 'Sending...';
+
             try {
                 const response = await fetch("{{ route('subscribe.store') }}", {
                     method: 'POST',
@@ -139,33 +135,38 @@
                 if (response.ok && data.success) {
                     alert(data.message);
                     form.reset();
-                    popup.style.display = 'none';
+
+                    if (popup) {
+                        popup.style.display = 'none';
+                    }
+
                 } else {
-                    // লারাভেলের ভ্যালিডেশন এররগুলো দেখানোর জন্য
                     alert(data.message || 'ভুল কিছু ঘটেছে। আবার চেষ্টা করুন।');
                 }
+
             } catch (error) {
-                console.error('Error:', error);
+                console.error(error);
                 alert('সার্ভারে সমস্যা হয়েছে। দয়া করে পরে চেষ্টা করুন।');
+
             } finally {
-                // বাটন আগের অবস্থায় ফিরিয়ে আনা
                 submitButton.disabled = false;
                 submitButton.textContent = 'Send me the deals';
             }
         });
+
     });
-</script>
+</script>--}}
 <!-- Scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{{asset('/Frontend/assets/js/aos.js')}}"></script>
+<script src="{{asset('/Frontend/assets/js/swiper-bundle.min.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('/')}}Frontend/assets/js/data.js"></script>
-{{--<script src="{{asset('/')}}Frontend/assets/js/components.js"></script>--}}
+<script src="{{asset('/')}}Frontend/assets/js/components.js"></script>
 <script src="{{asset('/')}}Frontend/assets/js/home.js"></script>
 <script src="{{asset('/')}}Frontend/assets/js/main.js"></script>
-
+@vite('resources/js/app.js')
 @stack('js')
 @yield('js')
 <script type="text/javascript">
@@ -177,38 +178,49 @@
             floatPosition: google.translate.TranslateElement.FloatPosition.TOP_LEFT
         }, 'google_translate_element');
     }
-    document.addEventListener("DOMContentLoaded", function() {
-        // ড্রপডাউন আইটেমে ক্লিক করার লজিক
-        const langSelectors = document.querySelectorAll('.lang-selector');
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const langSelectors = document.querySelectorAll(".lang-selector");
+        let isChangingLanguage = false;
+
         langSelectors.forEach(selector => {
-            selector.addEventListener('click', function(e) {
+            selector.addEventListener("click", function (e) {
                 e.preventDefault();
 
-                const langCode = this.getAttribute('data-lang');
-                const langText = this.innerText;
+                if (isChangingLanguage) return;
 
-                // গুগলের ভেতরের ডিফল্ট ড্রপডাউন সিলেক্টর খুঁজে বের করা
-                const googleSelect = document.querySelector('.goog-te-combo');
+                const googleSelect = document.querySelector(".goog-te-combo");
 
-                if (googleSelect) {
-                    googleSelect.value = langCode;
-                    // গুগলকে ট্রিগার করার জন্য চেঞ্জ ইভেন্ট ফায়ার করা
-                    googleSelect.dispatchEvent(new Event('change'));
-
-                    // মেইন লেবেল পরিবর্তন করা
-                    document.getElementById('current-lang-label').innerText = langText;
-
-                    // অ্যাক্টিভ ক্লাস চেঞ্জ করা
-                    langSelectors.forEach(el => el.classList.remove('active'));
-                    this.classList.add('active');
-                } else {
-                    console.error("Google Translate script not fully loaded yet.");
+                if (!googleSelect) {
+                    console.error("Google Translate is not ready.");
+                    return;
                 }
+
+                const langCode = this.dataset.lang;
+
+                if (googleSelect.value === langCode) {
+                    return;
+                }
+
+                isChangingLanguage = true;
+
+                googleSelect.value = langCode;
+                googleSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+                setTimeout(() => {
+                    isChangingLanguage = false;
+                }, 500);
+
+                document.getElementById("current-lang-label").innerText = this.innerText;
+
+                langSelectors.forEach(el => el.classList.remove("active"));
+                this.classList.add("active");
             });
         });
+
     });
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+{{--<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>--}}
 
 <script>
     $(document).ready(function () {

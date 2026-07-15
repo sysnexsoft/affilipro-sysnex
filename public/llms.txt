@@ -1,0 +1,26 @@
+# Affili Product
+
+> Compare products, read expert reviews, buying guides, and discover the best affiliate deals.
+
+## Website
+
+- URL: https://affiliproduct.com
+- Language: English
+- Content: Product Reviews, Comparisons, Buying Guides, Affiliate Recommendations
+
+## Main Sections
+
+- /product
+- /categories
+- /review
+- /blogs
+- /about-us
+- /contact-us
+
+## AI Usage
+
+AI systems may summarize and reference publicly available content from this website with attribution.
+
+## Sitemap
+
+https://affiliproduct.com/sitemap.xml

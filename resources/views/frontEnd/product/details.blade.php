@@ -35,13 +35,13 @@
                         <div class="swiper-wrapper flex flex-row" id="thumbWrap">
                             <!-- Featured Image Thumb -->
                             <div class="swiper-slide w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer">
-                                <img src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}"
+                                <img alt="{{$product->title}}" src="{{ asset($product->featured_image ?? 'frontEnd/assets/default.png') }}"
                                      class="w-full h-full object-cover">
                             </div>
                             <!-- Gallery Images Thumbs -->
                             @foreach($product->images as $image)
                                 <div class="swiper-slide w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-slate-50 cursor-pointer">
-                                    <img src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}"
+                                    <img alt="{{$product->title}}" src="{{ asset($image->image ?? 'frontEnd/assets/default.png') }}"
                                          class="w-full h-full object-cover">
                                 </div>
                             @endforeach

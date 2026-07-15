@@ -64,7 +64,15 @@
     <div class="container-xxl flex items-center justify-between py-3">
         <a href="{{ route('home') }}" class="flex items-center gap-2 no-underline">
             @if($web_setting->header_logo)
-                <img class="img-fluid h-10 w-auto object-contain" src="{{ asset($web_setting->header_logo) }}" alt="Logo">
+                <img
+                    src="{{ asset($web_setting->header_logo) }}"
+                    alt="{{ env('APP_NAME') }}"
+                    width="180"
+                    height="50"
+                    class="img-fluid h-10 w-auto object-contain"
+                    loading="eager"
+                    fetchpriority="high">
+
             @else
                 <span class="w-10 h-10 rounded-xl bg-gradient-primary grid place-items-center text-white shadow-soft">
                     <i class="fa-solid fa-bolt"></i>

@@ -30,11 +30,11 @@
                     <div class="card-body px-3 py-5">
                         <div class="mx-auto mb-4 text-center auth-logo">
                             <a href="" class="logo-dark">
-                                <img src="{{asset($web_setting->header_logo)}}" height="32" alt="logo dark">
+                                <img src="{{asset($web_setting->header_logo)}}" height="32" alt="{{env('APP_NAME')}}">
                             </a>
 
                             <a href="" class="logo-light">
-                                <img src="{{asset($web_setting->header_logo)}}" height="28" alt="logo light">
+                                <img src="{{asset($web_setting->header_logo)}}" height="28" alt="{{env('APP_NAME')}}">
                             </a>
                         </div>
 
